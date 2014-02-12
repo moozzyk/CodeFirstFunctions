@@ -1,4 +1,6 @@
-﻿namespace CodeFirstFunctions
+﻿// Copyright (c) Pawel Kadluczka, Inc. All rights reserved. See License.txt in the project root for license information.
+
+namespace CodeFirstFunctions
 {
     using System.ComponentModel.DataAnnotations;
     using System.Data.Entity;

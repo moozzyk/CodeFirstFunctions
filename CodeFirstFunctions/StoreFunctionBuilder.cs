@@ -1,11 +1,10 @@
-﻿
-using System.Collections.Generic;
-using System.Data.Entity.Core.Mapping;
-using System.Reflection;
+﻿// Copyright (c) Pawel Kadluczka, Inc. All rights reserved. See License.txt in the project root for license information.
 
 namespace CodeFirstFunctions
 {
     using System;
+    using System.Collections.Generic;
+    using System.Data.Entity.Core.Mapping;
     using System.Data.Entity.Core.Metadata.Edm;
     using System.Data.Entity.Infrastructure;
     using System.Diagnostics;

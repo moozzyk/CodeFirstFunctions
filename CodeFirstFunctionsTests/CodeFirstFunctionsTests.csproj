@@ -30,12 +30,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework">
-      <HintPath>..\..\entityframework\bin\Debug\EntityFramework.dll</HintPath>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.6.1.1-alpha1-30211\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\entityframework\bin\Debug\EntityFramework.SqlServer.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.1.1-alpha1-30211\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="Moq">
       <HintPath>..\packages\Moq.4.1.1311.0615\lib\net40\Moq.dll</HintPath>
@@ -59,7 +60,6 @@
     <Compile Include="E2ETests.cs" />
     <Compile Include="FunctionDiscoveryTests.cs" />
     <Compile Include="FunctionImportTests.cs" />
-    <Compile Include="FunctionsConventionsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StoreFunctionBuilderTests.cs" />
   </ItemGroup>

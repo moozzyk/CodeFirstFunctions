@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using System.Linq;
-using System.Reflection;
+﻿// Copyright (c) Pawel Kadluczka, Inc. All rights reserved. See License.txt in the project root for license information.
 
 namespace CodeFirstFunctions
 {
@@ -8,6 +6,9 @@ namespace CodeFirstFunctions
     using System.Data.Entity;
     using System.Data.Entity.Core.Metadata.Edm;
     using System.Data.Entity.Infrastructure;
+    using System.Globalization;
+    using System.Linq;
+    using System.Reflection;
     using Xunit;
 
     public class StoreFunctionBuilderTests

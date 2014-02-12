@@ -1,5 +1,4 @@
-﻿using System.Data.Entity.Core.Objects;
-using System.Runtime.Remoting.Messaging;
+﻿// Copyright (c) Pawel Kadluczka, Inc. All rights reserved. See License.txt in the project root for license information.
 
 namespace CodeFirstFunctions
 {
@@ -7,10 +6,12 @@ namespace CodeFirstFunctions
     using System.Collections.Generic;
     using System.Data.Entity;
     using System.Data.Entity.Core.Metadata.Edm;
+    using System.Data.Entity.Core.Objects;
     using System.Data.Entity.Infrastructure;
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
+
 
     internal class FunctionDiscovery
     {
