@@ -50,14 +50,15 @@ namespace CodeFirstFunctions
             if((returnGenericTypeDefinition == typeof (IQueryable<>) && functionAttribute != null) ||  //TVF
                returnGenericTypeDefinition == typeof (ObjectResult<>))                                 // StoredProc
             {
-                var functionExAttr = functionAttribute as DbFunctionExAttribute;
+                var functionDetailsAttr = 
+                    Attribute.GetCustomAttribute(method, typeof(DbFunctionDetailsAttribute)) as DbFunctionDetailsAttribute;
                 
                 return new FunctionImport(
                     method.Name, 
                     GetParameters(method),
                     GetReturnEdmItemType(method.ReturnType.GetGenericArguments()[0]),
-                    functionExAttr != null ? functionExAttr.ResultColumnName : null,
-                    functionExAttr != null ? functionExAttr.DatabaseSchema : null,
+                    functionDetailsAttr != null ? functionDetailsAttr.ResultColumnName : null,
+                    functionDetailsAttr != null ? functionDetailsAttr.DatabaseSchema : null,
                     isComposable: returnGenericTypeDefinition == typeof(IQueryable<>));
             }
 

@@ -4,21 +4,12 @@ namespace CodeFirstFunctions
 {
     using Xunit;
 
-    public class DbFunctionExAttributeTests
+    public class DbFunctionDetailsAttributeTests
     {
-        [Fact]
-        public void Ctor_sets_namespace_and_name()
-        {
-            var attr = new DbFunctionExAttribute("ns", "f");
-
-            Assert.Equal("ns", attr.NamespaceName);
-            Assert.Equal("f", attr.FunctionName);
-        }
-
         [Fact]
         public void Can_set_get_schema()
         {
-            var attr = new DbFunctionExAttribute("ns", "f");
+            var attr = new DbFunctionDetailsAttribute();
 
             Assert.Null(attr.DatabaseSchema);
 
@@ -30,7 +21,7 @@ namespace CodeFirstFunctions
         [Fact]
         public void Can_set_get_ResultColumnName()
         {
-            var attr = new DbFunctionExAttribute("ns", "f");
+            var attr = new DbFunctionDetailsAttribute();
 
             Assert.Null(attr.ResultColumnName);
 

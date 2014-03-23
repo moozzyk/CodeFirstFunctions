@@ -50,7 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DbFunctionExAttribute.cs" />
+    <Compile Include="DbFunctionDetailsAttribute.cs" />
     <Compile Include="FunctionDiscovery.cs" />
     <Compile Include="FunctionImport.cs" />
     <Compile Include="FunctionsConvention.cs" />

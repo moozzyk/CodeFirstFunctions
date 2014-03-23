@@ -51,7 +51,8 @@ namespace CodeFirstFunctions
             modelBuilder.Conventions.Add(new FunctionsConvention<MyContext>("dbo"));
         }
 
-        [DbFunctionEx("CodeFirstFunctions", "GetUniqueTerminalCount", ResultColumnName = "TerminalCount")]
+        [DbFunctionDetails(ResultColumnName = "TerminalCount")]
+        [DbFunction("CodeFirstFunctions", "GetUniqueTerminalCount")]
         public virtual IQueryable<byte> GetUniqueTerminalCount()
         {
             return ((IObjectContextAdapter)this).ObjectContext
@@ -59,7 +60,8 @@ namespace CodeFirstFunctions
                     string.Format("[{0}].{1}", GetType().Name, "[GetUniqueTerminalCount]()"));
         }
 
-        [DbFunctionEx("CodeFirstFunctions", "GetUniqueTerminalCount", ResultColumnName = "Type")]
+        [DbFunctionDetails(ResultColumnName = "Type")]
+        [DbFunction("CodeFirstFunctions", "GetUniqueTerminalCount")]
         public virtual IQueryable<AirportType> GetAirportType(AirportType airportType)
         {
             var airportTypeParameter = new ObjectParameter("AirportType", airportType);

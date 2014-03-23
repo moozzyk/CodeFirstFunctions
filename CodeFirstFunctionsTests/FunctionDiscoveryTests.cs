@@ -19,13 +19,15 @@ namespace CodeFirstFunctions
         {
             private class Fake
             {
-                [DbFunctionEx("ns", "f", DatabaseSchema = "abc", ResultColumnName = "col")]
+                [DbFunction("ns", "f")]
+                [DbFunctionDetails(DatabaseSchema = "abc", ResultColumnName = "col")]
                 public IQueryable<int> PrimitiveFunctionImportComposable(int p1, string p2)
                 {
                     throw new NotImplementedException();
                 }
 
-                [DbFunctionEx("ns", "f", DatabaseSchema = "abc", ResultColumnName = "col")]
+                [DbFunction("ns", "f")]
+                [DbFunctionDetails(DatabaseSchema = "abc", ResultColumnName = "col")]
                 public IQueryable<TestEnumType> EnumFunctionImportComposable(TestEnumType p1, string p2)
                 {
                     throw new NotImplementedException();
@@ -37,7 +39,8 @@ namespace CodeFirstFunctions
                     throw new NotImplementedException();
                 }
 
-                [DbFunctionEx("ns", "f", DatabaseSchema = "abc", ResultColumnName = "col")]
+                [DbFunction("ns", "f")]
+                [DbFunctionDetails(DatabaseSchema = "abc", ResultColumnName = "col")]
                 public IQueryable<int> InvalidParamFunc(object p1)
                 {
                     throw new NotImplementedException();
