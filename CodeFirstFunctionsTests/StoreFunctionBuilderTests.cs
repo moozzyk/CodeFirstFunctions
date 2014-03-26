@@ -125,5 +125,27 @@ namespace CodeFirstFunctions
             Assert.Equal("int", storeFunction.Parameters[0].TypeName);
             Assert.True(storeFunction.IsComposableAttribute);
         }
+
+        [Fact]
+        public void StoreFunctionBuilder_uses_default_namespace_if_no_entities()
+        {
+            var model = new DbModelBuilder()
+                    .Build(new DbProviderInfo("System.Data.SqlClient", "2012"));
+
+            var functionImport =
+                new FunctionImport(
+                    "f",
+                    new[] { 
+                        new KeyValuePair<string, EdmType>(
+                            "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String)) 
+                    },
+                    PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64),
+                    "ResultCol",
+                    "dbo", isComposable: true);
+
+            var storeFunction = new StoreFunctionBuilder(model, "docs").Create(functionImport);
+
+            Assert.Equal("CodeFirstDatabaseSchema", storeFunction.NamespaceName);
+        }
     }
 }

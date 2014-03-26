@@ -23,8 +23,8 @@ namespace CodeFirstFunctions
             _model = model;
             _schema = schema;
 
-            //TODO: it might be hardcoded in CodeFirst so it might be possible to use the same value
-            _namespace = @namespace ?? _model.StoreModel.EntityTypes.First().NamespaceName;
+            // CodeFirstDatabaseSchema is what EF CodeFirst model builder uses for store model
+            _namespace = @namespace ?? "CodeFirstDatabaseSchema";
         }
 
         public EdmFunction Create(FunctionImport functionImport)

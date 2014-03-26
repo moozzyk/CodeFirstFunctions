@@ -54,7 +54,7 @@ namespace CodeFirstFunctions
                 }
             }
 
-            // TODO: stored proc, scalar functions?, model defined functions?, multiple result sets?
+            // TODO: scalar functions?, model defined functions?, multiple result sets?
         }
 
         private EdmFunction CreateFunctionImport(DbModel model, FunctionImport functionImport)

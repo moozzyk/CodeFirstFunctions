@@ -46,7 +46,6 @@ namespace CodeFirstFunctions
                 ? method.ReturnType.GetGenericTypeDefinition()
                 : null;
             
-            // TODO: Non-generic ObjectResult?
             if((returnGenericTypeDefinition == typeof (IQueryable<>) && functionAttribute != null) ||  //TVF
                returnGenericTypeDefinition == typeof (ObjectResult<>))                                 // StoredProc
             {
