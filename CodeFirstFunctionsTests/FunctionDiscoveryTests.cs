@@ -82,7 +82,6 @@ namespace CodeFirstFunctions
                 // result column for non-scalars
                 // function attribute on non IQueryable
                 // out parameters
-                // EdmFunctionAttribute?
                 // nullable enum and primitive types
             }
 

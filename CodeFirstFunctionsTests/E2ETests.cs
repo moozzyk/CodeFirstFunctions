@@ -61,7 +61,7 @@ namespace CodeFirstFunctions
         }
 
         [DbFunctionDetails(ResultColumnName = "Type")]
-        [DbFunction("CodeFirstFunctions", "GetUniqueTerminalCount")]
+        [DbFunction("CodeFirstFunctions", "GetAirportType")]
         public virtual IQueryable<AirportType> GetAirportType(AirportType airportType)
         {
             var airportTypeParameter = new ObjectParameter("AirportType", airportType);
@@ -119,6 +119,13 @@ namespace CodeFirstFunctions
                 new ObjectParameter("CountryCode", typeof(string));
 
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Airport>("GetAirportsSP", countryCodeParameter);            
+        }
+
+        public virtual ObjectResult<AirportType> GetAirportTypeSP(AirportType airportType)
+        {
+            var airportTypeParameter = new ObjectParameter("AirportType", airportType);
+
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<AirportType>("GetAirportTypeSP", airportTypeParameter);
         }
     }
 
@@ -242,6 +249,12 @@ namespace CodeFirstFunctions
                 "CREATE PROCEDURE [dbo].[GetUniqueTerminalCountSP] AS " +
                 "SELECT DISTINCT [TerminalCount] " +
                 "FROM [dbo].[Airports]");
+
+            context.Database.ExecuteSqlCommand(
+                "CREATE PROCEDURE [dbo].[GetAirportTypeSP] @AirportType int AS " +
+                "SELECT [Type] " +
+                "FROM [dbo].[Airports] " +
+                "WHERE [Type] = @AirportType");
         }
     }
     
@@ -384,6 +397,18 @@ namespace CodeFirstFunctions
 
                 Assert.Equal(1, result.Count);
                 Assert.Equal("WRO", result[0].IATACode);
+            }
+        }
+
+        [Fact]
+        public void Can_invoke_stored_proc_mapped_to_enums_types()
+        {
+            using (var ctx = new MyContext())
+            {
+                var result = ctx.GetAirportTypeSP(AirportType.International).ToList();
+
+                Assert.Equal(4, result.Count());
+                Assert.True(result.All(r => r == AirportType.International));
             }
         }
     }
