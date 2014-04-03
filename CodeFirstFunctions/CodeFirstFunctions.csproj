@@ -11,6 +11,7 @@
     <AssemblyName>CodeFirstFunctions</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <InternalsVisibleToEnabled Condition=" $(InternalsVisibleToEnabled) == ''">true</InternalsVisibleToEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -28,6 +29,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DefineConstants Condition=" '$(InternalsVisibleToEnabled)'">$(DefineConstants);INTERNALSVISIBLETOENABLED</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -63,7 +67,15 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+
   </ItemGroup>
+    <Target Name="BuildSigned">
+    <Error Text="KeyFile parameter not spercified (/p:KeyFile=MyKey.snk)" Condition=" '$(KeyFile)' == ''" />
+    
+    <MSBuild Projects="CodeFirstFunctions.csproj" Targets="Rebuild"
+     Properties="InternalsVisibleToEnabled=false;SignAssembly=true;AssemblyOriginatorKeyFile=$(KeyFile)" BuildInParallel="$(BuildInParallel)" />     
+  </Target>
+
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
