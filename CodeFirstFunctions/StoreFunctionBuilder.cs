@@ -127,7 +127,11 @@ namespace CodeFirstFunctions
             foreach (var property in entityType.Properties)
             {
                 var propertyMapping = (ScalarPropertyMapping)entityTypeMapping.Fragments.SelectMany(f => f.PropertyMappings).Single(p => p.Property == property);
-                propertyToStoreTypeUsage[property] = propertyMapping.Column.TypeUsage;
+                
+                propertyToStoreTypeUsage[property] = TypeUsage.Create(
+                    propertyMapping.Column.TypeUsage.EdmType,
+                    propertyMapping.Column.TypeUsage.Facets.Where(
+                        f => f.Name != "StoreGeneratedPattern" && f.Name != "ConcurrencyMode"));
             }
 
             return propertyToStoreTypeUsage;
