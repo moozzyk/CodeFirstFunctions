@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeFirstFunctions", "CodeFirstFunctions\CodeFirstFunctions.csproj", "{6912CA14-D068-4131-97A5-053530B4F58D}"
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeFirstStoreFunctions", "CodeFirstStoreFunctions\CodeFirstStoreFunctions.csproj", "{6912CA14-D068-4131-97A5-053530B4F58D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeFirstFunctionsTests", "CodeFirstFunctionsTests\CodeFirstFunctionsTests.csproj", "{D5570D23-4D7B-4508-9941-E4CAC960A12F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeFirstStoreFunctionsTests", "CodeFirstStoreFunctionsTests\CodeFirstStoreFunctionsTests.csproj", "{D5570D23-4D7B-4508-9941-E4CAC960A12F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

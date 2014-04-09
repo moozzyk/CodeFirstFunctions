@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Pawel Kadluczka, Inc. All rights reserved. See License.txt in the project root for license information.
 
-namespace CodeFirstFunctions
+namespace CodeFirstStoreFunctions
 {
     using System.ComponentModel.DataAnnotations;
     using System.Data.Entity;
@@ -52,7 +52,7 @@ namespace CodeFirstFunctions
         }
 
         [DbFunctionDetails(ResultColumnName = "TerminalCount")]
-        [DbFunction("CodeFirstFunctions", "GetUniqueTerminalCount")]
+        [DbFunction("CodeFirstStoreFunctions", "GetUniqueTerminalCount")]
         public virtual IQueryable<byte> GetUniqueTerminalCount()
         {
             return ((IObjectContextAdapter)this).ObjectContext
@@ -61,7 +61,7 @@ namespace CodeFirstFunctions
         }
 
         [DbFunctionDetails(ResultColumnName = "Type")]
-        [DbFunction("CodeFirstFunctions", "GetAirportType")]
+        [DbFunction("CodeFirstStoreFunctions", "GetAirportType")]
         public virtual IQueryable<AirportType> GetAirportType(AirportType airportType)
         {
             var airportTypeParameter = new ObjectParameter("AirportType", airportType);
@@ -72,7 +72,7 @@ namespace CodeFirstFunctions
                     airportTypeParameter);
         }
 
-        [DbFunction("CodeFirstFunctions", "GetAirports_ComplexType")]
+        [DbFunction("CodeFirstStoreFunctions", "GetAirports_ComplexType")]
         public virtual IQueryable<Airport_ResultType> GetAirports_ComplexType(string countryCode)
         {
             var countryCodeParameter = countryCode != null ?

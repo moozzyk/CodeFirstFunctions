@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <metadata>
-    <id>EntityFramework.CodeFirstFunctions</id>
+    <id>EntityFramework.CodeFirstStoreFunctions</id>
     <version>1.0.0-alpha</version>
     <authors>Pawel "moozzyk" Kadluczka</authors>
     <title>Support for store functions for Entity Framework 6.1 Code First.</title>
