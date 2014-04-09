@@ -5,8 +5,8 @@
     <version>1.0.0-alpha</version>
     <authors>Pawel "moozzyk" Kadluczka</authors>
     <title>Support for store functions for Entity Framework 6.1 Code First.</title>
-    <licenseUrl>https://efcache.codeplex.com/license</licenseUrl>
-    <projectUrl>https://efcache.codeplex.com</projectUrl>
+    <licenseUrl>https://codefirstfunctions.codeplex.com/license</licenseUrl>
+    <projectUrl>https://codefirstfunctions.codeplex.com</projectUrl>
     <!--
     <iconUrl>http://download.codeplex.com/Project/Download/FileDownload.aspx?....</iconUrl>
     -->
