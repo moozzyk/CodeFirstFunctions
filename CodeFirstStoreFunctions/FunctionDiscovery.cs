@@ -40,7 +40,7 @@ namespace CodeFirstStoreFunctions
 
         private FunctionImport CreateFunctionImport(MethodInfo method)
         {
-            var functionAttribute = Attribute.GetCustomAttribute(method, typeof(DbFunctionAttribute));
+            var functionAttribute = (DbFunctionAttribute)Attribute.GetCustomAttribute(method, typeof(DbFunctionAttribute));
             var returnGenericTypeDefinition = method.ReturnType.IsGenericType
                 ? method.ReturnType.GetGenericTypeDefinition()
                 : null;
@@ -54,11 +54,12 @@ namespace CodeFirstStoreFunctions
                 var isComposable = returnGenericTypeDefinition == typeof (IQueryable<>);
 
                 return new FunctionImport(
-                    method.Name, 
+                    (functionAttribute != null ? functionAttribute.FunctionName : null) ?? method.Name,
                     GetParameters(method),
                     GetReturnTypes(method.Name, method.ReturnType.GetGenericArguments()[0], functionDetailsAttr, isComposable),
                     functionDetailsAttr != null ? functionDetailsAttr.ResultColumnName : null,
                     functionDetailsAttr != null ? functionDetailsAttr.DatabaseSchema : null,
+                    functionDetailsAttr != null ? functionDetailsAttr.StoreFunctionName : null,
                     isComposable);
             }
 

@@ -70,7 +70,8 @@ namespace CodeFirstStoreFunctions
 
                     ReturnParameters = returnParameters,
                     IsComposable = functionImport.IsComposable,
-                    Schema = functionImport.DatabaseSchema ?? _schema
+                    Schema = functionImport.DatabaseSchema ?? _schema,
+                    StoreFunctionName = functionImport.StoreFunctionName
                 };
 
             return EdmFunction.Create(
