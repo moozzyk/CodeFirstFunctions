@@ -4,6 +4,7 @@ using System;
 
 namespace CodeFirstStoreFunctions
 {
+    using System;
     using System.Collections.Generic;
     using System.Data.Entity;
     using System.Data.Entity.Core.Mapping;
@@ -13,19 +14,20 @@ namespace CodeFirstStoreFunctions
     using System.Diagnostics;
     using System.Linq;
 
-    public class FunctionsConvention<T> : IStoreModelConvention<EntityContainer>
-        where T : DbContext
+    public class FunctionsConvention : IStoreModelConvention<EntityContainer>
     {
         private readonly string _defaultSchema;
+        private readonly Type _methodClassType;
 
-        public FunctionsConvention(string defaultSchema)
+        public FunctionsConvention(string defaultSchema, Type methodClassType)
         {
             _defaultSchema = defaultSchema;
+            _methodClassType = methodClassType;
         }
 
         public void Apply(EntityContainer item, DbModel model)
         {
-            var functionImports = new FunctionDiscovery(model, typeof (T)).FindFunctionImports();
+            var functionImports = new FunctionDiscovery(model, _methodClassType).FindFunctionImports();
             var storeFunctionBuilder = new StoreFunctionBuilder(model, _defaultSchema);
 
             foreach (var functionImport in functionImports)

@@ -16,6 +16,7 @@ namespace CodeFirstStoreFunctions
     {
         private readonly DbModel _model;
         private readonly Type _type;
+        private readonly bool _isStaticClass;
 
         public FunctionDiscovery(DbModel model, Type type)
         {
@@ -24,11 +25,26 @@ namespace CodeFirstStoreFunctions
 
             _model = model;
             _type = type;
+            _isStaticClass = type.IsAbstract && type.IsSealed;
         }
 
         public IEnumerable<FunctionImport> FindFunctionImports()
         {
-            foreach (var method in _type.GetMethods())
+            BindingFlags bindingFlags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.InvokeMethod;
+            if (_isStaticClass)
+            {
+                bindingFlags |= BindingFlags.Static;
+            }
+            else
+            {
+                bindingFlags |= BindingFlags.Instance;
+            }
+
+            var methods = _type
+                .GetMethods(bindingFlags)
+                .Where(m => !m.IsSpecialName);//Skip property getters/setters
+
+            foreach (var method in methods)
             {
                 var functionImport = CreateFunctionImport(method);
                 if (functionImport != null)
@@ -73,7 +89,12 @@ namespace CodeFirstStoreFunctions
             // TODO: Output parameters?
             foreach (var parameter in method.GetParameters())
             {
-                var unwrappedParameterType = 
+                if (_isStaticClass && parameter.Position == 0)
+                {
+                    continue;
+                }
+
+                var unwrappedParameterType =
                     Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
 
                 var parameterEdmType =

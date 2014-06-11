@@ -75,6 +75,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FunctionsConvention`1.cs" />
     <Compile Include="DbFunctionDetailsAttribute.cs" />
     <Compile Include="FunctionDiscovery.cs" />
     <Compile Include="FunctionImport.cs" />
