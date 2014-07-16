@@ -119,19 +119,22 @@ namespace CodeFirstStoreFunctions
             Debug.Assert(entityType != null, "entityType == null");
 
             var propertyToStoreTypeUsage = new Dictionary<EdmProperty, TypeUsage>();
-
-            var entityTypeMapping =
-                _model.ConceptualToStoreMapping.EntitySetMappings.SelectMany(s => s.EntityTypeMappings)
-                    .Single(t => t.EntityType == entityType);
-
-            foreach (var property in entityType.Properties)
-            {
-                var propertyMapping = (ScalarPropertyMapping)entityTypeMapping.Fragments.SelectMany(f => f.PropertyMappings).Single(p => p.Property == property);
-                
-                propertyToStoreTypeUsage[property] = TypeUsage.Create(
-                    propertyMapping.Column.TypeUsage.EdmType,
-                    propertyMapping.Column.TypeUsage.Facets.Where(
-                        f => f.Name != "StoreGeneratedPattern" && f.Name != "ConcurrencyMode"));
+			var types = Tools.GetTypeHierarchy(entityType);
+			var mappings = _model.ConceptualToStoreMapping.EntitySetMappings.SelectMany(s => s.EntityTypeMappings);
+            var entityTypeMappings = mappings.Where(t => types.Contains(t.EntityType));
+            foreach (var property in entityType.Properties) {
+				foreach (var entityTypeMapping in entityTypeMappings) {
+					var propertyMappings = entityTypeMapping.Fragments.SelectMany(f => f.PropertyMappings);
+					if (propertyMappings != null) {
+						var propertyMapping = (ScalarPropertyMapping)propertyMappings.FirstOrDefault(p => p.Property == property);
+                		if (propertyMapping != null && !propertyToStoreTypeUsage.ContainsKey(property)) {
+							propertyToStoreTypeUsage[property] = TypeUsage.Create(
+								propertyMapping.Column.TypeUsage.EdmType,
+								propertyMapping.Column.TypeUsage.Facets.Where(
+									f => f.Name != "StoreGeneratedPattern" && f.Name != "ConcurrencyMode"));
+						}
+					}
+				}
             }
 
             return propertyToStoreTypeUsage;

@@ -64,8 +64,9 @@ namespace CodeFirstStoreFunctions
             if (functionImport.ReturnType.BuiltInTypeKind == BuiltInTypeKind.EntityType)
             {
                 // TODO: derived types?
+				var types = Tools.GetTypeHierarchy(functionImport.ReturnType);
                 entitySets =
-                    model.ConceptualModel.Container.EntitySets.Where(s => s.ElementType == functionImport.ReturnType)
+                    model.ConceptualModel.Container.EntitySets.Where(s => types.Contains(s.ElementType))
                         .ToList();
 
                 if (entitySets.Count == 0)
