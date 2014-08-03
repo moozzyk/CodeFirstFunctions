@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Pawel Kadluczka, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
+
 namespace CodeFirstStoreFunctions
 {
     using System.ComponentModel.DataAnnotations;
@@ -69,6 +71,36 @@ namespace CodeFirstStoreFunctions
             return ((IObjectContextAdapter)this).ObjectContext
                 .CreateQuery<AirportType>(
                     string.Format("[{0}].{1}", GetType().Name, "[GetAirportType](@AirportType)"),
+                    airportTypeParameter);
+        }
+
+        [DbFunctionDetails(ResultColumnName = "Type")]
+        [DbFunction("CodeFirstStoreFunctions", "GetPassedAirportType")]
+        public virtual IQueryable<int?> GetPassedAirportType(int? airportType)
+        {
+            var airportTypeParameter =
+                airportType.HasValue
+                    ? new ObjectParameter("AirportType", airportType)
+                    : new ObjectParameter("AirportType", typeof (int?)); 
+
+            return ((IObjectContextAdapter)this).ObjectContext
+                .CreateQuery<int?>(
+                    string.Format("[{0}].{1}", GetType().Name, "[GetPassedAirportType](@AirportType)"),
+                    airportTypeParameter);
+        }
+
+        [DbFunctionDetails(ResultColumnName = "Type")]
+        [DbFunction("CodeFirstStoreFunctions", "GetPassedAirportTypeEnum")]
+        public virtual IQueryable<AirportType?> GetPassedAirportTypeEnum(AirportType? airportType)
+        {
+            var airportTypeParameter =
+                airportType.HasValue
+                    ? new ObjectParameter("AirportType", airportType)
+                    : new ObjectParameter("AirportType", typeof(AirportType?)); 
+
+            return ((IObjectContextAdapter)this).ObjectContext
+                .CreateQuery<AirportType?>(
+                    string.Format("[{0}].{1}", GetType().Name, "[GetPassedAirportTypeEnum](@AirportType)"),
                     airportTypeParameter);
         }
 
@@ -225,6 +257,18 @@ namespace CodeFirstStoreFunctions
                 "WHERE [Type] = @AirportType");
 
             context.Database.ExecuteSqlCommand(
+                "CREATE FUNCTION [dbo].[GetPassedAirportType](@AirportType int) " +
+                "RETURNS TABLE " +
+                "RETURN " +
+                "SELECT @AirportType AS [Type]");
+
+            context.Database.ExecuteSqlCommand(
+                "CREATE FUNCTION [dbo].[GetPassedAirportTypeEnum](@AirportType int) " +
+                "RETURNS TABLE " +
+                "RETURN " +
+                "SELECT @AirportType AS [Type] ");
+
+            context.Database.ExecuteSqlCommand(
                 "CREATE PROCEDURE [dbo].[GetAirports_ComplexTypeSP] @CountryCode nchar(3) AS " +
                 "SELECT [IATACode], " +
                 "   [CityCode], " +
@@ -363,6 +407,28 @@ namespace CodeFirstStoreFunctions
 
                 Assert.Equal(4, result.Count());
                 Assert.True(result.All(r => r == AirportType.International));
+            }
+        }
+
+        [Fact]
+        public void Can_invoke_TVF_with_nullable_parameter_returning_null_primitive_values()
+        {
+            using (var ctx = new MyContext())
+            {
+                var airports = ctx.GetPassedAirportType(null).Where(a => a == null).ToList();
+
+                Assert.Equal(new int?[] {null}, airports);
+            }
+        }
+
+        [Fact]
+        public void Can_invoke_TVF_with_nullable_parameter_enum_returning_null_primitive_values()
+        {
+            using (var ctx = new MyContext())
+            {
+                var airports = ctx.GetPassedAirportTypeEnum(null).Where(a => a == null).ToList();
+
+                Assert.Equal(new AirportType?[] { null }, airports);
             }
         }
 

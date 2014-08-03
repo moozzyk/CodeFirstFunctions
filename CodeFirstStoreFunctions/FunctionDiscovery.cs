@@ -68,13 +68,16 @@ namespace CodeFirstStoreFunctions
         {
             Debug.Assert(method != null, "method is null");
 
-            // TODO: Output parameters, nullable?
+            // TODO: Output parameters?
             foreach (var parameter in method.GetParameters())
             {
+                var unwrappedParameterType = 
+                    Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
+
                 var parameterEdmType =
-                    parameter.ParameterType.IsEnum
-                        ? FindEnumType(parameter.ParameterType)
-                        : GetEdmPrimitiveTypeForClrType(parameter.ParameterType);
+                    unwrappedParameterType.IsEnum
+                        ? FindEnumType(unwrappedParameterType)
+                        : GetEdmPrimitiveTypeForClrType(unwrappedParameterType);
 
                 if (parameterEdmType == null)
                 {
@@ -82,7 +85,7 @@ namespace CodeFirstStoreFunctions
                         new InvalidOperationException(
                             string.Format(
                             "The type '{0}' of the parameter '{1}' of function '{2}' is invalid. Parameters can only be of a type that can be converted to an Edm scalar type",
-                            parameter.ParameterType.FullName, parameter.Name, method.Name));
+                            unwrappedParameterType.FullName, parameter.Name, method.Name));
                 }
 
                 yield return new KeyValuePair<string, EdmType>(parameter.Name, parameterEdmType);
@@ -91,22 +94,24 @@ namespace CodeFirstStoreFunctions
 
         private EdmType GetReturnEdmItemType(Type type)
         {
-            var edmType = GetEdmPrimitiveTypeForClrType(type);
+            var unwrappedType = Nullable.GetUnderlyingType(type) ?? type;
+
+            var edmType = GetEdmPrimitiveTypeForClrType(unwrappedType);
             if (edmType != null)
             {
                 return edmType;
             }
 
-            if (type.IsEnum)
+            if (unwrappedType.IsEnum)
             {
-                if ((edmType = FindEnumType(type)) != null)
+                if ((edmType = FindEnumType(unwrappedType)) != null)
                 {
                     return edmType;
                 }
             }
             else
             {
-                if((edmType = FindStructuralType(type)) != null)
+                if ((edmType = FindStructuralType(unwrappedType)) != null)
                 {
                     return edmType;
                 }                

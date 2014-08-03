@@ -33,6 +33,20 @@ namespace CodeFirstStoreFunctions
                     throw new NotImplementedException();
                 }
 
+                [DbFunction("ns", "f")]
+                [DbFunctionDetails(DatabaseSchema = "abc", ResultColumnName = "col")]
+                public IQueryable<int?> PrimitiveFunctionImportWithNullablePrimitiveTypes(int? p1)
+                {
+                    throw new NotImplementedException();
+                }
+
+                [DbFunction("ns", "f")]
+                [DbFunctionDetails(DatabaseSchema = "abc", ResultColumnName = "col")]
+                public IQueryable<TestEnumType?> EnumFunctionImportWithNullableEnums(TestEnumType? p1)
+                {
+                    throw new NotImplementedException();
+                }
+
                 // should not be discovered - missing DbFunctionAttribute
                 public IQueryable<int> NotAFunctionImport(int p1, string p2)
                 {
@@ -133,6 +147,36 @@ namespace CodeFirstStoreFunctions
             }
 
             [Fact]
+            public void FindFunctionImports_creates_function_imports_taking_and_returning_nullable_primitive_types()
+            {
+                var enumTypeCtor = typeof(EnumType).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance).Single(c => c.GetParameters().Count() == 5);
+                var enumType = (EnumType)enumTypeCtor.Invoke(BindingFlags.NonPublic | BindingFlags.Instance, null,
+                    new object[] { "TestEnumType", "Model", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32), false, DataSpace.CSpace },
+                    CultureInfo.InvariantCulture);
+
+                var model = CreateModel();
+                model.ConceptualModel.AddItem(enumType);
+
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(typeof(Fake)
+                        .GetMethods()
+                        .Where(m => m.Name == "PrimitiveFunctionImportWithNullablePrimitiveTypes")
+                        .ToArray());
+
+                var functionImport =
+                    new FunctionDiscovery(model, mockType.Object)
+                        .FindFunctionImports().SingleOrDefault();
+
+                Assert.NotNull(functionImport);
+                Assert.Equal("PrimitiveFunctionImportWithNullablePrimitiveTypes", functionImport.Name);
+                Assert.Equal(1, functionImport.Parameters.Count());
+                Assert.Equal("Edm.Int32", functionImport.ReturnType.FullName);
+                Assert.True(functionImport.IsComposable);
+            }
+
+            [Fact]
             public void FindFunctionImports_creates_function_imports_returning_enum_types()
             {
                 var enumTypeCtor = typeof (EnumType).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance).Single(c => c.GetParameters().Count() == 5);
@@ -158,6 +202,36 @@ namespace CodeFirstStoreFunctions
                 Assert.NotNull(functionImport);
                 Assert.Equal("EnumFunctionImportComposable", functionImport.Name);
                 Assert.Equal(2, functionImport.Parameters.Count());
+                Assert.Equal("Model.TestEnumType", functionImport.ReturnType.FullName);
+                Assert.True(functionImport.IsComposable);
+            }
+
+            [Fact]
+            public void FindFunctionImports_creates_function_imports_taking_and_returning_nullable_enums()
+            {
+                var enumTypeCtor = typeof(EnumType).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance).Single(c => c.GetParameters().Count() == 5);
+                var enumType = (EnumType)enumTypeCtor.Invoke(BindingFlags.NonPublic | BindingFlags.Instance, null,
+                    new object[] { "TestEnumType", "Model", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32), false, DataSpace.CSpace },
+                    CultureInfo.InvariantCulture);
+
+                var model = CreateModel();
+                model.ConceptualModel.AddItem(enumType);
+
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(typeof(Fake)
+                        .GetMethods()
+                        .Where(m => m.Name == "EnumFunctionImportWithNullableEnums")
+                        .ToArray());
+
+                var functionImport =
+                    new FunctionDiscovery(model, mockType.Object)
+                        .FindFunctionImports().SingleOrDefault();
+
+                Assert.NotNull(functionImport);
+                Assert.Equal("EnumFunctionImportWithNullableEnums", functionImport.Name);
+                Assert.Equal(1, functionImport.Parameters.Count());
                 Assert.Equal("Model.TestEnumType", functionImport.ReturnType.FullName);
                 Assert.True(functionImport.IsComposable);
             }
