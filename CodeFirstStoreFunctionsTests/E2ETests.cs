@@ -1,7 +1,10 @@
 ﻿// Copyright (c) Pawel Kadluczka, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Xml;
+
 namespace CodeFirstStoreFunctions
 {
+    using System;
     using System.ComponentModel.DataAnnotations;
     using System.Data.Entity;
     using System.Data.Entity.Core.Objects;
@@ -31,6 +34,18 @@ namespace CodeFirstStoreFunctions
         public byte TerminalCount { get; set; }
     }
 
+    public abstract class Vehicle
+    {
+        public int Id { get; set; }
+
+        public DateTime ProductionDate { get; set; }
+    }
+
+    public class Aircraft : Vehicle
+    {
+        public string Code { get; set; }
+    }
+
     public class MyContext : DbContext
     {
         static MyContext()
@@ -39,6 +54,8 @@ namespace CodeFirstStoreFunctions
         }
 
         public DbSet<Airport> Airports { get; set; }
+
+        public DbSet<Vehicle> Vehicles { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -128,6 +145,14 @@ namespace CodeFirstStoreFunctions
                     countryCodeParameter);
         }
 
+        [DbFunction("MyContext", "GetAircraft")]
+        public virtual IQueryable<Aircraft> GetAircraft()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext
+                .CreateQuery<Aircraft>(
+                    string.Format("[{0}].{1}", GetType().Name, "[GetAircraft]()"));
+        }
+
         public virtual ObjectResult<byte> GetUniqueTerminalCountSP()
         {
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<byte>("GetUniqueTerminalCountSP");
@@ -156,6 +181,11 @@ namespace CodeFirstStoreFunctions
             var airportTypeParameter = new ObjectParameter("AirportType", airportType);
 
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<AirportType>("GetAirportTypeSP", airportTypeParameter);
+        }
+
+        public virtual ObjectResult<Aircraft> GetAircraftSP()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Aircraft>("GetAircraftSP");            
         }
     }
 
@@ -209,6 +239,13 @@ namespace CodeFirstStoreFunctions
                     TerminalCount = 1,
                     Type = AirportType.International
                 });
+
+            context.Vehicles.Add(new Aircraft
+            {
+                Code = "AT7", 
+                ProductionDate = new DateTime(1929, 12, 7)
+            
+            });
 
             context.SaveChanges();
 
@@ -267,6 +304,17 @@ namespace CodeFirstStoreFunctions
                 "SELECT @AirportType AS [Type] ");
 
             context.Database.ExecuteSqlCommand(
+                "CREATE FUNCTION [dbo].[GetAircraft]() " +
+                "RETURNS TABLE " +
+                "RETURN " +
+                "SELECT " +
+                "[Id], " +
+                "[Code], " +
+                "[ProductionDate]" +
+                "FROM [dbo].[Vehicles] " +
+                "WHERE [Discriminator] = N'Aircraft'");
+
+            context.Database.ExecuteSqlCommand(
                 "CREATE PROCEDURE [dbo].[GetAirports_ComplexTypeSP] @CountryCode nchar(3) AS " +
                 "SELECT [IATACode], " +
                 "   [CityCode], " +
@@ -297,6 +345,15 @@ namespace CodeFirstStoreFunctions
                 "SELECT [Type] " +
                 "FROM [dbo].[Airports] " +
                 "WHERE [Type] = @AirportType");
+
+            context.Database.ExecuteSqlCommand(
+                "CREATE PROCEDURE [dbo].[GetAircraftSP] AS " +
+                "SELECT " +
+                "[Id], " +
+                "[Code], " +
+                "[ProductionDate]" +
+                "FROM [dbo].[Vehicles] " +
+                "WHERE [Discriminator] = N'Aircraft'");
         }
     }
     
@@ -431,6 +488,18 @@ namespace CodeFirstStoreFunctions
         }
 
         [Fact]
+        public void Can_invoke_TVF_returning_entities_of_non_base_type()
+        {
+            using (var ctx = new MyContext())
+            {
+                var aircraft = ctx.GetAircraft().ToList();
+
+                Assert.Equal(1, aircraft.Count);
+                Assert.Equal("AT7", aircraft[0].Code);
+            }
+        }
+
+        [Fact]
         public void Can_invoke_stored_proc_mapped_to_primitive_types()
         {
             using (var ctx = new MyContext())
@@ -473,6 +542,18 @@ namespace CodeFirstStoreFunctions
 
                 Assert.Equal(4, result.Count());
                 Assert.True(result.All(r => r == AirportType.International));
+            }
+        }
+
+        [Fact]
+        public void Can_invoke_sproc_returning_entities_of_non_base_type()
+        {
+            using (var ctx = new MyContext())
+            {
+                var aircraft = ctx.GetAircraftSP().ToList();
+
+                Assert.Equal(1, aircraft.Count);
+                Assert.Equal("AT7", aircraft[0].Code);
             }
         }
     }

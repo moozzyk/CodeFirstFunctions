@@ -96,7 +96,6 @@ namespace CodeFirstStoreFunctions
                 // result column for non-scalars
                 // function attribute on non IQueryable
                 // out parameters
-                // nullable enum and primitive types
             }
 
             [Fact]

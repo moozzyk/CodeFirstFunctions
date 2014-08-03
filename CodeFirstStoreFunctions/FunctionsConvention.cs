@@ -63,8 +63,7 @@ namespace CodeFirstStoreFunctions
             List<EntitySet> entitySets = null;
             if (functionImport.ReturnType.BuiltInTypeKind == BuiltInTypeKind.EntityType)
             {
-                // TODO: derived types?
-				var types = Tools.GetTypeHierarchy(functionImport.ReturnType);
+                var types = Tools.GetTypeHierarchy(functionImport.ReturnType);
                 entitySets =
                     model.ConceptualModel.Container.EntitySets.Where(s => types.Contains(s.ElementType))
                         .ToList();
@@ -74,7 +73,7 @@ namespace CodeFirstStoreFunctions
                     throw new InvalidOperationException(
                         string.Format(
                             "The model does not contain EntitySet for the '{0}' entity type.",
-                            functionImport.ReturnType.Name));
+                            functionImport.ReturnType.FullName));
                 }
 
                 Debug.Assert(entitySets.Count == 1, "Invalid model (MEST)");
