@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Pawel Kadluczka, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System;
+
 namespace CodeFirstStoreFunctions
 {
     using System.Collections.Generic;
@@ -32,7 +34,6 @@ namespace CodeFirstStoreFunctions
                 var storeFunctionDefinition = storeFunctionBuilder.Create(functionImport);
                 model.ConceptualModel.Container.AddFunctionImport(functionImportDefinition);
                 model.StoreModel.AddItem(storeFunctionDefinition);
-
 
                 if (functionImportDefinition.IsComposableAttribute)
                 {
@@ -67,7 +68,14 @@ namespace CodeFirstStoreFunctions
                     model.ConceptualModel.Container.EntitySets.Where(s => s.ElementType == functionImport.ReturnType)
                         .ToList();
 
-                // TODO: throw if no entity set found
+                if (entitySets.Count == 0)
+                {
+                    throw new InvalidOperationException(
+                        string.Format(
+                            "The model does not contain EntitySet for the '{0}' entity type.",
+                            functionImport.ReturnType.Name));
+                }
+
                 Debug.Assert(entitySets.Count == 1, "Invalid model (MEST)");
             }
 
