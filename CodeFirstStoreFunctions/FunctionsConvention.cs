@@ -114,7 +114,7 @@ namespace CodeFirstStoreFunctions
                                 returnType.FullName));
                     }
 
-                    Debug.Assert(entitySets.Length == 1, "Invalid model (MEST)");
+                    Debug.Assert(matchingEntitySets.Length == 1, "Invalid model (MEST)");
 
                     entitySets[i] = matchingEntitySets[0];
                 }

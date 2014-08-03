@@ -93,7 +93,7 @@ namespace CodeFirstStoreFunctions
             }
         }
 
-        private EdmType GetReturnTypes(string methodName, Type methodReturnType,
+        private EdmType[] GetReturnTypes(string methodName, Type methodReturnType,
             DbFunctionDetailsAttribute functionDetailsAttribute, bool isComposable)
         {
             Debug.Assert(methodReturnType != null, "methodReturnType is null");
@@ -116,7 +116,7 @@ namespace CodeFirstStoreFunctions
                         methodName, methodReturnType.FullName, resultTypes[0].FullName));
             }
 
-            return GetReturnEdmItemType(methodReturnType);
+            return (resultTypes ?? new[] {methodReturnType}).Select(GetReturnEdmItemType).ToArray();
         }
 
         private EdmType GetReturnEdmItemType(Type type)

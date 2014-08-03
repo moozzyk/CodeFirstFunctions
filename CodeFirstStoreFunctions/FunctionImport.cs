@@ -17,15 +17,16 @@ namespace CodeFirstStoreFunctions
         private readonly bool _isComposable;
 
         public FunctionImport(string name, IEnumerable<KeyValuePair<string, EdmType>> parameters, 
-            EdmType returnType, string resultColumnName, string databaseSchema, bool isComposable)
+            EdmType[] returnTypes, string resultColumnName, string databaseSchema, bool isComposable)
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(name), "invalid name");
             Debug.Assert(parameters != null, "parameters is null");
             Debug.Assert(parameters.All(p => p.Value != null), "invalid parameter type");
-            Debug.Assert(returnType != null, "returnType is null");
+            Debug.Assert(returnTypes != null && returnTypes.Length > 0, "returnTypes array is null or empty");
+            Debug.Assert(!isComposable || returnTypes.Length == 1, "multiple return types for composable function");
 
             _name = name;
-            _returnTypes = new[] {returnType};
+            _returnTypes = returnTypes;
             _parameters = parameters.ToArray();
             _resultColumnName = resultColumnName;
             _databaseSchema = databaseSchema;

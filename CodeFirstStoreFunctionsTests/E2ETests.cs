@@ -32,7 +32,7 @@ namespace CodeFirstStoreFunctions
         public byte TerminalCount { get; set; }
     }
 
-    public abstract class Vehicle
+    public class Vehicle
     {
         public int Id { get; set; }
 
@@ -185,6 +185,13 @@ namespace CodeFirstStoreFunctions
         {
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Aircraft>("GetAircraftSP");            
         }
+
+        [DbFunctionDetails(
+            ResultTypes = new[] {typeof (Airport_ResultType), typeof (Airport), typeof (Aircraft), typeof (int)})]
+        public virtual ObjectResult<Airport_ResultType> MultipleResultSets()
+        {
+            return ((IObjectContextAdapter) this).ObjectContext.ExecuteFunction<Airport_ResultType>("MultipleResultSets");
+        }
     }
 
     #region initializer
@@ -306,9 +313,9 @@ namespace CodeFirstStoreFunctions
                 "RETURNS TABLE " +
                 "RETURN " +
                 "SELECT " +
-                "[Id], " +
-                "[Code], " +
-                "[ProductionDate]" +
+                "    [Id], " +
+                "    [Code], " +
+                "    [ProductionDate]" +
                 "FROM [dbo].[Vehicles] " +
                 "WHERE [Discriminator] = N'Aircraft'");
 
@@ -347,11 +354,34 @@ namespace CodeFirstStoreFunctions
             context.Database.ExecuteSqlCommand(
                 "CREATE PROCEDURE [dbo].[GetAircraftSP] AS " +
                 "SELECT " +
-                "[Id], " +
-                "[Code], " +
-                "[ProductionDate]" +
+                "    [Id], " +
+                "    [Code], " +
+                "    [ProductionDate]" +
                 "FROM [dbo].[Vehicles] " +
                 "WHERE [Discriminator] = N'Aircraft'");
+
+            context.Database.ExecuteSqlCommand(
+                "CREATE PROCEDURE [dbo].[MultipleResultSets] AS " +
+                "SELECT [IATACode], " +
+                "   [CityCode], " +
+                "   [CountryCode], " +
+                "   [Name], " +
+                "   [TerminalCount] " +
+                "FROM [dbo].[Airports] " +
+                "SELECT [IATACode], " +
+                "   [CityCode], " +
+                "   [CountryCode], " +
+                "   [Name], " +
+                "   [TerminalCount], " +
+                "   [Type] " +
+                "FROM [dbo].[Airports] " +
+                "SELECT " +
+                "    [Id], " +
+                "    [Code], " +
+                "    [ProductionDate]" +
+                "FROM [dbo].[Vehicles] " +
+                "WHERE [Discriminator] = N'Aircraft' " +
+                "SELECT 42 AS [Answer]");
         }
     }
     
@@ -552,6 +582,25 @@ namespace CodeFirstStoreFunctions
 
                 Assert.Equal(1, aircraft.Count);
                 Assert.Equal("AT7", aircraft[0].Code);
+            }
+        }
+
+        [Fact]
+        public void Can_invoke_stored_proc_with_multiple_resultsets()
+        {
+            using (var ctx = new MyContext())
+            {
+                var results = ctx.MultipleResultSets();
+                Assert.Equal(4, results.ToList().Count);
+
+                var secondResultSet = results.GetNextResult<Airport>();
+                Assert.Equal(4, secondResultSet.ToList().Count);
+
+                var thirdResultSet = secondResultSet.GetNextResult<Aircraft>();
+                Assert.Equal(new[] { "AT7" }, thirdResultSet.ToList().Select(r => r.Code));
+
+                var fourthResultSet = thirdResultSet.GetNextResult<int>();
+                Assert.Equal(new[] { 42 }, fourthResultSet.ToList());
             }
         }
     }

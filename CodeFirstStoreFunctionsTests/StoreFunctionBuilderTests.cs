@@ -26,7 +26,7 @@ namespace CodeFirstStoreFunctions
                         new KeyValuePair<string, EdmType>(
                             "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String)) 
                     },
-                    PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64),
+                    new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
                     "ResultCol",
                     "dbo", isComposable: true);
 
@@ -72,7 +72,7 @@ namespace CodeFirstStoreFunctions
                         new KeyValuePair<string, EdmType>(
                             "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String)) 
                     },
-                    complexType,
+                    new EdmType[] { complexType },
                     "ResultCol",
                     "dbo",
                     isComposable: false);
@@ -102,7 +102,7 @@ namespace CodeFirstStoreFunctions
                 new FunctionImport(
                     "f",
                     new[] { new KeyValuePair<string, EdmType>("p1", enumType) },
-                    enumType,
+                    new EdmType[] { enumType },
                     "ResultCol",
                     "dbo",
                     isComposable: true);
@@ -139,7 +139,7 @@ namespace CodeFirstStoreFunctions
                         new KeyValuePair<string, EdmType>(
                             "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String)) 
                     },
-                    PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64),
+                    new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
                     "ResultCol",
                     "dbo", isComposable: true);
 
