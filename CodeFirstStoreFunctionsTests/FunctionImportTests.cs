@@ -23,7 +23,7 @@ namespace CodeFirstStoreFunctions
                 new FunctionImport("Func", parameters, edmType, "result", "dbo", isComposable: true);
 
             Assert.Equal("Func", functionImport.Name);
-            Assert.Same(edmType, functionImport.ReturnType);
+            Assert.Same(edmType, functionImport.ReturnTypes[0]);
             Assert.Equal(parameters, functionImport.Parameters);
             Assert.Equal("result", functionImport.ResultColumnName);
             Assert.Equal("dbo", functionImport.DatabaseSchema);

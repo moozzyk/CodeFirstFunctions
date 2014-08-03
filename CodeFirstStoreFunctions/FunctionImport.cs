@@ -10,7 +10,7 @@ namespace CodeFirstStoreFunctions
     internal class FunctionImport
     {
         private readonly string _name;
-        private readonly EdmType _returnType;
+        private readonly EdmType[] _returnTypes;
         private readonly KeyValuePair<string, EdmType>[] _parameters;
         private readonly string _resultColumnName;
         private readonly string _databaseSchema;
@@ -25,7 +25,7 @@ namespace CodeFirstStoreFunctions
             Debug.Assert(returnType != null, "returnType is null");
 
             _name = name;
-            _returnType = returnType;
+            _returnTypes = new[] {returnType};
             _parameters = parameters.ToArray();
             _resultColumnName = resultColumnName;
             _databaseSchema = databaseSchema;
@@ -37,9 +37,9 @@ namespace CodeFirstStoreFunctions
             get { return _name; }
         }
 
-        public EdmType ReturnType 
+        public EdmType[] ReturnTypes
         { 
-            get { return _returnType; } 
+            get { return _returnTypes; } 
         }
 
         public IEnumerable<KeyValuePair<string, EdmType>> Parameters

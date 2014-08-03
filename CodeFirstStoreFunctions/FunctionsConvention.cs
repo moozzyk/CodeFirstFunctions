@@ -55,29 +55,14 @@ namespace CodeFirstStoreFunctions
                 }
             }
 
-            // TODO: scalar functions?, model defined functions?, multiple result sets?
+            // TODO: scalar functions?, model defined functions?
         }
 
         private static EdmFunction CreateFunctionImport(DbModel model, FunctionImport functionImport)
         {
-            List<EntitySet> entitySets = null;
-            if (functionImport.ReturnType.BuiltInTypeKind == BuiltInTypeKind.EntityType)
-            {
-                var types = Tools.GetTypeHierarchy(functionImport.ReturnType);
-                entitySets =
-                    model.ConceptualModel.Container.EntitySets.Where(s => types.Contains(s.ElementType))
-                        .ToList();
-
-                if (entitySets.Count == 0)
-                {
-                    throw new InvalidOperationException(
-                        string.Format(
-                            "The model does not contain EntitySet for the '{0}' entity type.",
-                            functionImport.ReturnType.FullName));
-                }
-
-                Debug.Assert(entitySets.Count == 1, "Invalid model (MEST)");
-            }
+            EntitySet[] entitySets;
+            FunctionParameter[] returnParameters;
+            CreateReturnParameters(model, functionImport, out returnParameters, out entitySets);
 
             var functionPayload =
                 new EdmFunctionPayload
@@ -87,13 +72,7 @@ namespace CodeFirstStoreFunctions
                             .Parameters
                             .Select(p => FunctionParameter.Create(p.Key, p.Value, ParameterMode.In))
                             .ToList(),
-                    ReturnParameters = new[]
-                    {
-                        FunctionParameter.Create(
-                            "ReturnParam",
-                            functionImport.ReturnType.GetCollectionType(),
-                            ParameterMode.ReturnValue)
-                    },
+                    ReturnParameters = returnParameters,
                     IsComposable = functionImport.IsComposable,
                     IsFunctionImport = true,
                     EntitySets = entitySets
@@ -105,6 +84,46 @@ namespace CodeFirstStoreFunctions
                 DataSpace.CSpace,
                 functionPayload,
                 null);
+        }
+
+        private static void CreateReturnParameters(DbModel model, FunctionImport functionImport,
+            out FunctionParameter[] returnParameters, out EntitySet[] entitySets)
+        {
+            var resultCount = functionImport.ReturnTypes.Count();
+            entitySets = new EntitySet[resultCount];
+            returnParameters = new FunctionParameter[resultCount];
+
+            for (int i = 0; i < resultCount; i++)
+            {
+                var returnType = functionImport.ReturnTypes[i];
+
+                if (returnType.BuiltInTypeKind == BuiltInTypeKind.EntityType)
+                {
+                    var types = Tools.GetTypeHierarchy(returnType);
+
+                    var matchingEntitySets =
+                        model.ConceptualModel.Container.EntitySets
+                            .Where(s => types.Contains(s.ElementType))
+                            .ToArray();
+
+                    if (matchingEntitySets.Length == 0)
+                    {
+                        throw new InvalidOperationException(
+                            string.Format(
+                                "The model does not contain EntitySet for the '{0}' entity type.",
+                                returnType.FullName));
+                    }
+
+                    Debug.Assert(entitySets.Length == 1, "Invalid model (MEST)");
+
+                    entitySets[i] = matchingEntitySets[0];
+                }
+
+                returnParameters[i] = FunctionParameter.Create(
+                    "ReturnParam" + i,
+                    returnType.GetCollectionType(),
+                    ParameterMode.ReturnValue);
+            }
         }
     }
 }

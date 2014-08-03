@@ -137,7 +137,7 @@ namespace CodeFirstStoreFunctions
                 Assert.NotNull(functionImport);
                 Assert.Equal("PrimitiveFunctionImportComposable", functionImport.Name);
                 Assert.Equal(2, functionImport.Parameters.Count());
-                Assert.Equal("Edm.Int32", functionImport.ReturnType.FullName);
+                Assert.Equal("Edm.Int32", functionImport.ReturnTypes[0].FullName);
                 Assert.True(functionImport.IsComposable);
             }
 
@@ -162,7 +162,7 @@ namespace CodeFirstStoreFunctions
                 Assert.NotNull(functionImport);
                 Assert.Equal("FunctionImportReturningComplexTypesComposable", functionImport.Name);
                 Assert.Equal(0, functionImport.Parameters.Count());
-                Assert.Equal("Model.TestComplexType", functionImport.ReturnType.FullName);
+                Assert.Equal("Model.TestComplexType", functionImport.ReturnTypes[0].FullName);
                 Assert.True(functionImport.IsComposable);
             }
 
@@ -192,7 +192,7 @@ namespace CodeFirstStoreFunctions
                 Assert.NotNull(functionImport);
                 Assert.Equal("PrimitiveFunctionImportWithNullablePrimitiveTypes", functionImport.Name);
                 Assert.Equal(1, functionImport.Parameters.Count());
-                Assert.Equal("Edm.Int32", functionImport.ReturnType.FullName);
+                Assert.Equal("Edm.Int32", functionImport.ReturnTypes[0].FullName);
                 Assert.True(functionImport.IsComposable);
             }
 
@@ -222,7 +222,7 @@ namespace CodeFirstStoreFunctions
                 Assert.NotNull(functionImport);
                 Assert.Equal("EnumFunctionImportComposable", functionImport.Name);
                 Assert.Equal(2, functionImport.Parameters.Count());
-                Assert.Equal("Model.TestEnumType", functionImport.ReturnType.FullName);
+                Assert.Equal("Model.TestEnumType", functionImport.ReturnTypes[0].FullName);
                 Assert.True(functionImport.IsComposable);
             }
 
@@ -252,7 +252,7 @@ namespace CodeFirstStoreFunctions
                 Assert.NotNull(functionImport);
                 Assert.Equal("EnumFunctionImportWithNullableEnums", functionImport.Name);
                 Assert.Equal(1, functionImport.Parameters.Count());
-                Assert.Equal("Model.TestEnumType", functionImport.ReturnType.FullName);
+                Assert.Equal("Model.TestEnumType", functionImport.ReturnTypes[0].FullName);
                 Assert.True(functionImport.IsComposable);
             }
 
@@ -277,7 +277,7 @@ namespace CodeFirstStoreFunctions
                 Assert.NotNull(functionImport);
                 Assert.Equal("StoredProcToComplexTypes", functionImport.Name);
                 Assert.Equal(0, functionImport.Parameters.Count());
-                Assert.Equal("Model.TestComplexType", functionImport.ReturnType.FullName);
+                Assert.Equal("Model.TestComplexType", functionImport.ReturnTypes[0].FullName);
                 Assert.False(functionImport.IsComposable);
             }
 
@@ -327,7 +327,7 @@ namespace CodeFirstStoreFunctions
 
                 var returnType = new FunctionDiscovery(CreateModel(), mockType.Object)
                                 .FindFunctionImports()
-                                .ToArray()[0].ReturnType;
+                                .ToArray()[0].ReturnTypes[0];
 
                 Assert.Contains("Edm.Int32", returnType.FullName);
             }

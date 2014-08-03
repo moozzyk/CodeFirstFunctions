@@ -42,8 +42,10 @@ namespace CodeFirstStoreFunctions
             var returnParameters = new List<FunctionParameter>();
             if (functionImport.IsComposable)
             {
+                Debug.Assert(functionImport.ReturnTypes.Length == 1, "Expected only one returnType for composable functions");
+
                 var returnEdmType =
-                    CreateReturnRowType(functionImport.ResultColumnName, functionImport.ReturnType);
+                    CreateReturnRowType(functionImport.ResultColumnName, functionImport.ReturnTypes[0]);
 
                 returnParameters.Add(
                     FunctionParameter.Create(
