@@ -12,7 +12,6 @@ namespace CodeFirstStoreFunctions
     using System.Linq;
     using System.Reflection;
 
-
     internal class FunctionDiscovery
     {
         private readonly DbModel _model;
@@ -51,14 +50,16 @@ namespace CodeFirstStoreFunctions
             {
                 var functionDetailsAttr = 
                     Attribute.GetCustomAttribute(method, typeof(DbFunctionDetailsAttribute)) as DbFunctionDetailsAttribute;
-                
+
+                var isComposable = returnGenericTypeDefinition == typeof (IQueryable<>);
+
                 return new FunctionImport(
                     method.Name, 
                     GetParameters(method),
-                    GetReturnEdmItemType(method.ReturnType.GetGenericArguments()[0]),
+                    GetReturnTypes(method.Name, method.ReturnType.GetGenericArguments()[0], functionDetailsAttr, isComposable),
                     functionDetailsAttr != null ? functionDetailsAttr.ResultColumnName : null,
                     functionDetailsAttr != null ? functionDetailsAttr.DatabaseSchema : null,
-                    isComposable: returnGenericTypeDefinition == typeof(IQueryable<>));
+                    isComposable);
             }
 
             return null;
@@ -90,6 +91,32 @@ namespace CodeFirstStoreFunctions
 
                 yield return new KeyValuePair<string, EdmType>(parameter.Name, parameterEdmType);
             }
+        }
+
+        private EdmType GetReturnTypes(string methodName, Type methodReturnType,
+            DbFunctionDetailsAttribute functionDetailsAttribute, bool isComposable)
+        {
+            Debug.Assert(methodReturnType != null, "methodReturnType is null");
+
+            var resultTypes = functionDetailsAttribute != null ? functionDetailsAttribute.ResultTypes : null;
+
+            if (isComposable && resultTypes != null)
+            {
+                throw new InvalidOperationException(
+                    "The DbFunctionDetailsAttribute.ResultTypes property should be used only for stored procedures returning multiple resultsets and must be null for composable function imports.");
+            }
+
+            resultTypes = resultTypes == null || resultTypes.Length == 0 ? null : resultTypes;
+
+            if (resultTypes != null && resultTypes[0] != methodReturnType)
+            {
+                throw new InvalidOperationException(
+                    string.Format(
+                        "The ObjectResult<T> item type returned by the method '{0}' is '{1}' but the first type specified in the `DbFunctionDetailsAttribute.ResultTypes` is '{2}'. The ObjectResult<T> item type must match the first type from the `DbFunctionDetailsAttribute.ResultTypes` array.",
+                        methodName, methodReturnType.FullName, resultTypes[0].FullName));
+            }
+
+            return GetReturnEdmItemType(methodReturnType);
         }
 
         private EdmType GetReturnEdmItemType(Type type)

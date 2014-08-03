@@ -1,7 +1,5 @@
 ﻿// Copyright (c) Pawel Kadluczka, Inc. All rights reserved. See License.txt in the project root for license information.
 
-using System.Xml;
-
 namespace CodeFirstStoreFunctions
 {
     using System;

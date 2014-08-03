@@ -58,7 +58,7 @@ namespace CodeFirstStoreFunctions
             // TODO: scalar functions?, model defined functions?, multiple result sets?
         }
 
-        private EdmFunction CreateFunctionImport(DbModel model, FunctionImport functionImport)
+        private static EdmFunction CreateFunctionImport(DbModel model, FunctionImport functionImport)
         {
             List<EntitySet> entitySets = null;
             if (functionImport.ReturnType.BuiltInTypeKind == BuiltInTypeKind.EntityType)

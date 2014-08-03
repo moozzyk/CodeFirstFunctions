@@ -61,12 +61,33 @@ namespace CodeFirstStoreFunctions
                 }
 
                 [DbFunction("ns", "f")]
+                [DbFunctionDetails(DatabaseSchema = "abc", ResultColumnName = "col", ResultTypes = new Type[0])]
+                public IQueryable<int> TVFWithResultTypes()
+                {
+                    throw new NotImplementedException();
+                }
+
+
+                [DbFunction("ns", "f")]
                 public IQueryable<TestComplexType> FunctionImportReturningComplexTypesComposable()
                 {
                     throw new NotImplementedException();
                 }
 
                 public ObjectResult<TestComplexType> StoredProcToComplexTypes()
+                {
+                    throw new NotImplementedException();
+                }
+
+
+                [DbFunctionDetails(ResultTypes = new Type[0])]
+                public ObjectResult<int> EmptyResultType()
+                {
+                    throw new NotImplementedException();
+                }
+
+                [DbFunctionDetails(ResultTypes = new [] { typeof(int)})]
+                public ObjectResult<byte> StoredProcReturnTypeAndResultTypeMismatch()
                 {
                     throw new NotImplementedException();
                 }
@@ -277,6 +298,59 @@ namespace CodeFirstStoreFunctions
                 Assert.Contains("System.Object", message);
                 Assert.Contains("p1", message);
                 Assert.Contains("InvalidParamFunc", message);
+            }
+
+            [Fact]
+            public void FindFunctionImports_throws_for_TVFs_with_ResultTypes()
+            {
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(new[] { typeof(Fake).GetMethod("TVFWithResultTypes") });
+
+                var message =
+                    Assert.Throws<InvalidOperationException>(
+                        () => new FunctionDiscovery(CreateModel(), mockType.Object)
+                                .FindFunctionImports()
+                                .ToArray()).Message;
+
+                Assert.Contains("DbFunctionDetailsAttribute.ResultTypes", message);
+            }
+
+            [Fact]
+            public void FindFunctionImports_ignores_empty_ResultTypes_for_non_composable()
+            {
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(new[] { typeof(Fake).GetMethod("EmptyResultType") });
+
+                var returnType = new FunctionDiscovery(CreateModel(), mockType.Object)
+                                .FindFunctionImports()
+                                .ToArray()[0].ReturnType;
+
+                Assert.Contains("Edm.Int32", returnType.FullName);
+            }
+
+            [Fact]
+            public void FindFunctionImports_throws_if_return_type_and_resultTypes_out_of_sync()
+            {
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(new[] { typeof(Fake).GetMethod("StoredProcReturnTypeAndResultTypeMismatch") });
+
+                var message =
+                    Assert.Throws<InvalidOperationException>(
+                        () => new FunctionDiscovery(CreateModel(), mockType.Object)
+                                .FindFunctionImports()
+                                .ToArray()).Message;
+
+                Assert.Contains("ObjectResult<T>", message);
+                Assert.Contains("'StoredProcReturnTypeAndResultTypeMismatch'", message);
+                Assert.Contains("'System.Int32'", message);
+                Assert.Contains("'System.Byte'", message);
+                Assert.Contains("DbFunctionDetailsAttribute.ResultTypes", message);
             }
 
             private static DbModel CreateModel()
