@@ -11,6 +11,7 @@ namespace CodeFirstStoreFunctions
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
+    using System.Runtime.CompilerServices;
 
     internal class FunctionDiscovery
     {
@@ -30,7 +31,7 @@ namespace CodeFirstStoreFunctions
 
         public IEnumerable<FunctionImport> FindFunctionImports()
         {
-            BindingFlags bindingFlags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.InvokeMethod;
+            var bindingFlags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.InvokeMethod;
             if (_isStaticClass)
             {
                 bindingFlags |= BindingFlags.Static;
@@ -40,11 +41,7 @@ namespace CodeFirstStoreFunctions
                 bindingFlags |= BindingFlags.Instance;
             }
 
-            var methods = _type
-                .GetMethods(bindingFlags)
-                .Where(m => !m.IsSpecialName);//Skip property getters/setters
-
-            foreach (var method in methods)
+            foreach (var method in _type.GetMethods(bindingFlags))
             {
                 var functionImport = CreateFunctionImport(method);
                 if (functionImport != null)
@@ -88,7 +85,7 @@ namespace CodeFirstStoreFunctions
             // TODO: Output parameters?
             foreach (var parameter in method.GetParameters())
             {
-                if (_isStaticClass && parameter.Position == 0)
+                if (_isStaticClass && method.IsDefined(typeof(ExtensionAttribute), false) && parameter.Position == 0)
                 {
                     continue;
                 }

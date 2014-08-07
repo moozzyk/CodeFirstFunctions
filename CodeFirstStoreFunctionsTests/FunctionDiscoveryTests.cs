@@ -3,6 +3,7 @@
 namespace CodeFirstStoreFunctions
 {
     using Moq;
+    using Moq.Protected;
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Core.Metadata.Edm;
@@ -12,6 +13,21 @@ namespace CodeFirstStoreFunctions
     using System.Linq;
     using System.Reflection;
     using Xunit;
+
+    public static class StaticFake
+    {
+        [DbFunction("ns", "ExtensionMethod")]
+        public static IQueryable<int> ExtensionMethod(this IQueryable q, string param)
+        {
+            throw new NotImplementedException();
+        }
+
+        [DbFunction("ns", "StaticMethod")]
+        public static IQueryable<int> StaticMethod(string param)
+        {
+            throw new NotImplementedException();
+        }
+    }
 
     public class FunctionDiscoveryTests
     {
@@ -280,7 +296,7 @@ namespace CodeFirstStoreFunctions
 
                 var functionImport =
                     new FunctionDiscovery(model, mockType.Object)
-                        .FindFunctionImports().Single();
+                        .FindFunctionImports().SingleOrDefault();
 
                 Assert.NotNull(functionImport);
                 Assert.Equal("StoredProcToComplexTypes", functionImport.Name);
@@ -378,6 +394,56 @@ namespace CodeFirstStoreFunctions
                 Assert.Contains("'System.Int32'", message);
                 Assert.Contains("'System.Byte'", message);
                 Assert.Contains("DbFunctionDetailsAttribute.ResultTypes", message);
+            }
+
+            [Fact]
+            public void FindFunctionImports_creates_function_imports_for_extension_methods()
+            {
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(new[] { typeof(StaticFake).GetMethod("ExtensionMethod") });
+
+                mockType
+                    .Protected()
+                    .Setup <TypeAttributes>("GetAttributeFlagsImpl")
+                    .Returns(TypeAttributes.Abstract | TypeAttributes.Sealed);
+
+                var functionImport = new FunctionDiscovery(CreateModel(), mockType.Object)
+                                .FindFunctionImports().SingleOrDefault();
+
+                Assert.NotNull(functionImport);
+                Assert.Equal("ExtensionMethod", functionImport.Name);
+                Assert.Equal(1, functionImport.Parameters.Count());
+                Assert.Equal("param", functionImport.Parameters.First().Key);
+                Assert.Equal("Edm.String", functionImport.Parameters.First().Value.FullName);
+                Assert.Equal("Edm.Int32", functionImport.ReturnTypes[0].FullName);
+                Assert.True(functionImport.IsComposable);
+            }
+
+            [Fact]
+            public void FindFunctionImports_creates_function_imports_for_static_methods()
+            {
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(new[] { typeof(StaticFake).GetMethod("StaticMethod") });
+
+                mockType
+                    .Protected()
+                    .Setup<TypeAttributes>("GetAttributeFlagsImpl")
+                    .Returns(TypeAttributes.Abstract | TypeAttributes.Sealed);
+
+                var functionImport = new FunctionDiscovery(CreateModel(), mockType.Object)
+                                .FindFunctionImports().SingleOrDefault();
+
+                Assert.NotNull(functionImport);
+                Assert.Equal("StaticMethod", functionImport.Name);
+                Assert.Equal(1, functionImport.Parameters.Count());
+                Assert.Equal("param", functionImport.Parameters.First().Key);
+                Assert.Equal("Edm.String", functionImport.Parameters.First().Value.FullName);
+                Assert.Equal("Edm.Int32", functionImport.ReturnTypes[0].FullName);
+                Assert.True(functionImport.IsComposable);
             }
 
             private static DbModel CreateModel()
