@@ -19,33 +19,41 @@ namespace CodeFirstStoreFunctions
         {
             private class Fake
             {
-                [DbFunction("ns", "f")]
+                [DbFunction("ns", "PrimitiveFunctionImportComposable")]
                 [DbFunctionDetails(DatabaseSchema = "abc", ResultColumnName = "col")]
                 public IQueryable<int> PrimitiveFunctionImportComposable(int p1, string p2)
                 {
                     throw new NotImplementedException();
                 }
 
-                [DbFunction("ns", "f")]
+                [DbFunction("ns", "EnumFunctionImportComposable")]
                 [DbFunctionDetails(DatabaseSchema = "abc", ResultColumnName = "col")]
                 public IQueryable<TestEnumType> EnumFunctionImportComposable(TestEnumType p1, string p2)
                 {
                     throw new NotImplementedException();
                 }
 
-                [DbFunction("ns", "f")]
+                [DbFunction("ns", "PrimitiveFunctionImportWithNullablePrimitiveTypes")]
                 [DbFunctionDetails(DatabaseSchema = "abc", ResultColumnName = "col")]
                 public IQueryable<int?> PrimitiveFunctionImportWithNullablePrimitiveTypes(int? p1)
                 {
                     throw new NotImplementedException();
                 }
 
-                [DbFunction("ns", "f")]
+                [DbFunction("ns", "EnumFunctionImportWithNullableEnums")]
                 [DbFunctionDetails(DatabaseSchema = "abc", ResultColumnName = "col")]
                 public IQueryable<TestEnumType?> EnumFunctionImportWithNullableEnums(TestEnumType? p1)
                 {
                     throw new NotImplementedException();
                 }
+
+                [DbFunction("ns", "storeFuncName")]
+                [DbFunctionDetails(DatabaseSchema = "abc", ResultColumnName = "col")]
+                public IQueryable<int?> FuncWithDifferentNames()
+                {
+                    throw new NotImplementedException();
+                }
+
 
                 // should not be discovered - missing DbFunctionAttribute
                 public IQueryable<int> NotAFunctionImport(int p1, string p2)
@@ -60,7 +68,7 @@ namespace CodeFirstStoreFunctions
                     throw new NotImplementedException();
                 }
 
-                [DbFunction("ns", "f")]
+                [DbFunction("ns", "TVFWithResultTypes")]
                 [DbFunctionDetails(DatabaseSchema = "abc", ResultColumnName = "col", ResultTypes = new Type[0])]
                 public IQueryable<int> TVFWithResultTypes()
                 {
@@ -68,7 +76,7 @@ namespace CodeFirstStoreFunctions
                 }
 
 
-                [DbFunction("ns", "f")]
+                [DbFunction("ns", "FunctionImportReturningComplexTypesComposable")]
                 public IQueryable<TestComplexType> FunctionImportReturningComplexTypesComposable()
                 {
                     throw new NotImplementedException();
@@ -279,6 +287,25 @@ namespace CodeFirstStoreFunctions
                 Assert.Equal(0, functionImport.Parameters.Count());
                 Assert.Equal("Model.TestComplexType", functionImport.ReturnTypes[0].FullName);
                 Assert.False(functionImport.IsComposable);
+            }
+
+            [Fact]
+            public void FindFunctionImports_creates_function_imports_with_custom_names()
+            {
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(typeof(Fake)
+                        .GetMethods()
+                        .Where(m => m.Name == "FuncWithDifferentNames")
+                        .ToArray());
+
+                var functionImport =
+                    new FunctionDiscovery(CreateModel(), mockType.Object)
+                        .FindFunctionImports().Single();
+
+                Assert.NotNull(functionImport);
+                Assert.Equal("storeFuncName", functionImport.Name);
             }
 
             [Fact]

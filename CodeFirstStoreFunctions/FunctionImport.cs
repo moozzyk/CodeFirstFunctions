@@ -14,11 +14,10 @@ namespace CodeFirstStoreFunctions
         private readonly KeyValuePair<string, EdmType>[] _parameters;
         private readonly string _resultColumnName;
         private readonly string _databaseSchema;
-        private readonly string _storeFunctionName;
         private readonly bool _isComposable;
 
         public FunctionImport(string name, IEnumerable<KeyValuePair<string, EdmType>> parameters, 
-            EdmType[] returnTypes, string resultColumnName, string databaseSchema, string storeFunctionName, bool isComposable)
+            EdmType[] returnTypes, string resultColumnName, string databaseSchema, bool isComposable)
       {
             Debug.Assert(!string.IsNullOrWhiteSpace(name), "invalid name");
             Debug.Assert(parameters != null, "parameters is null");
@@ -31,7 +30,6 @@ namespace CodeFirstStoreFunctions
             _parameters = parameters.ToArray();
             _resultColumnName = resultColumnName;
             _databaseSchema = databaseSchema;
-            _storeFunctionName = storeFunctionName;
             _isComposable = isComposable;
         }
 
@@ -58,11 +56,6 @@ namespace CodeFirstStoreFunctions
         public string DatabaseSchema
         {
             get { return _databaseSchema; }
-        }
-
-        public string StoreFunctionName
-        {
-            get { return _storeFunctionName; }
         }
 
         public bool IsComposable

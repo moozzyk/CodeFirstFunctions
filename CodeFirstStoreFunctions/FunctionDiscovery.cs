@@ -75,7 +75,6 @@ namespace CodeFirstStoreFunctions
                     GetReturnTypes(method.Name, method.ReturnType.GetGenericArguments()[0], functionDetailsAttr, isComposable),
                     functionDetailsAttr != null ? functionDetailsAttr.ResultColumnName : null,
                     functionDetailsAttr != null ? functionDetailsAttr.DatabaseSchema : null,
-                    functionDetailsAttr != null ? functionDetailsAttr.StoreFunctionName : null,
                     isComposable);
             }
 

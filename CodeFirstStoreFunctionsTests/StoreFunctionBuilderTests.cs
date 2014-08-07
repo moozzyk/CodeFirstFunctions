@@ -27,8 +27,7 @@ namespace CodeFirstStoreFunctions
                             "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String)) 
                     },
                     new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
-                    "ResultCol",
-                    "dbo", null, isComposable: true);
+                    "ResultCol", "dbo", isComposable: true);
 
             var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionImport);
 
@@ -75,7 +74,6 @@ namespace CodeFirstStoreFunctions
                     new EdmType[] { complexType },
                     "ResultCol",
                     "dbo",
-                    null,
                     isComposable: false);
 
             var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionImport);
@@ -106,7 +104,6 @@ namespace CodeFirstStoreFunctions
                     new EdmType[] { enumType },
                     "ResultCol",
                     "dbo",
-                    null,
                     isComposable: true);
 
             var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionImport);
@@ -142,8 +139,7 @@ namespace CodeFirstStoreFunctions
                             "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String)) 
                     },
                     new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
-                    "ResultCol",
-                    "dbo", null, isComposable: true);
+                    "ResultCol", "dbo", isComposable: true);
 
             var storeFunction = new StoreFunctionBuilder(model, "docs").Create(functionImport);
 

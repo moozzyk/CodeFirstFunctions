@@ -151,6 +151,15 @@ namespace CodeFirstStoreFunctions
                     string.Format("[{0}].{1}", GetType().Name, "[GetAircraft]()"));
         }
 
+        [DbFunction("MyContext", "MyCustomTVF")]
+        [DbFunctionDetails(ResultColumnName = "Number")]
+        public virtual IQueryable<int> FunctionWhoseNameIsDifferentThenTVFName()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext
+                .CreateQuery<int>(
+                    string.Format("[{0}].{1}", GetType().Name, "[MyCustomTVF]()"));            
+        }
+
         public virtual ObjectResult<byte> GetUniqueTerminalCountSP()
         {
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<byte>("GetUniqueTerminalCountSP");
@@ -382,6 +391,12 @@ namespace CodeFirstStoreFunctions
                 "FROM [dbo].[Vehicles] " +
                 "WHERE [Discriminator] = N'Aircraft' " +
                 "SELECT 42 AS [Answer]");
+
+            context.Database.ExecuteSqlCommand(
+                "CREATE FUNCTION [dbo].[MyCustomTVF]()" +
+                "RETURNS TABLE " +
+                "RETURN " +
+                "SELECT 1 AS [Number]");
         }
     }
     
@@ -602,6 +617,15 @@ namespace CodeFirstStoreFunctions
                 var fourthResultSet = thirdResultSet.GetNextResult<int>();
                 Assert.Equal(new[] { 42 }, fourthResultSet.ToList());
             }
+        }
+
+        [Fact]
+        public void Method_name_and_the_TVF_name_dont_have_to_math()
+        {
+            using (var ctx = new MyContext())
+            {
+                Assert.Equal(new[] { 1 }, ctx.FunctionWhoseNameIsDifferentThenTVFName().ToList());
+            }            
         }
     }
 }
