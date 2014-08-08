@@ -116,7 +116,37 @@ namespace CodeFirstStoreFunctions
                     throw new NotImplementedException();
                 }
 
-                public class Entity
+                [DbFunction("CodeFirstDatabaseSchema", "UdfPrimitive")]
+                public int ScalarUdfPrimitiveType(string param)
+                {
+                    throw new NotImplementedException();
+                }
+
+                [DbFunction("CodeFirstDatabaseSchema", "UdfEnum")]
+                public static TestEnumType UdfReturningEnumType()
+                {
+                    throw new NotImplementedException();
+                }
+
+                [DbFunction("CodeFirstDatabaseSchema", "UdfComplexType")]
+                public static TestComplexType UdfReturningComplexType()
+                {
+                    throw new NotImplementedException();
+                }
+
+                [DbFunction("CodeFirstDatabaseSchema", "UdfEntityType")]
+                public static TestEntityType UdfReturningEntityType()
+                {
+                    throw new NotImplementedException();
+                }
+
+                [DbFunction("ns", "TestUdf")]
+                public int UdfNotInCodeFirstDatabaseSchema(string param)
+                {
+                    throw new NotImplementedException();
+                }
+
+                public class TestEntityType
                 {
                     public int Id { get; set; }
                     public string Name { get; set; }
@@ -162,7 +192,7 @@ namespace CodeFirstStoreFunctions
                 Assert.Equal("PrimitiveFunctionImportComposable", functionDescriptor.Name);
                 Assert.Equal(2, functionDescriptor.Parameters.Count());
                 Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.True(functionDescriptor.IsComposable);
+                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
             }
 
             [Fact]
@@ -187,25 +217,14 @@ namespace CodeFirstStoreFunctions
                 Assert.Equal("FunctionImportReturningComplexTypesComposable", functionDescriptor.Name);
                 Assert.Equal(0, functionDescriptor.Parameters.Count());
                 Assert.Equal("Model.TestComplexType", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.True(functionDescriptor.IsComposable);
+                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
             }
 
             [Fact]
             public void FindFunctions_creates_function_descriptors_taking_and_returning_nullable_primitive_types()
             {
-                var enumTypeCtor =
-                    typeof (EnumType).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
-                        .Single(c => c.GetParameters().Count() == 5);
-                var enumType = (EnumType) enumTypeCtor.Invoke(BindingFlags.NonPublic | BindingFlags.Instance, null,
-                    new object[]
-                    {
-                        "TestEnumType", "Model", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32), false,
-                        DataSpace.CSpace
-                    },
-                    CultureInfo.InvariantCulture);
-
                 var model = CreateModel();
-                model.ConceptualModel.AddItem(enumType);
+                model.ConceptualModel.AddItem(CreateEnumType());
 
                 var mockType = new Mock<Type>();
                 mockType
@@ -223,25 +242,14 @@ namespace CodeFirstStoreFunctions
                 Assert.Equal("PrimitiveFunctionImportWithNullablePrimitiveTypes", functionDescriptor.Name);
                 Assert.Equal(1, functionDescriptor.Parameters.Count());
                 Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.True(functionDescriptor.IsComposable);
+                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
             }
 
             [Fact]
             public void FindFunctions_creates_function_descriptors_returning_enum_types()
             {
-                var enumTypeCtor =
-                    typeof (EnumType).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
-                        .Single(c => c.GetParameters().Count() == 5);
-                var enumType = (EnumType) enumTypeCtor.Invoke(BindingFlags.NonPublic | BindingFlags.Instance, null,
-                    new object[]
-                    {
-                        "TestEnumType", "Model", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32), false,
-                        DataSpace.CSpace
-                    },
-                    CultureInfo.InvariantCulture);
-
                 var model = CreateModel();
-                model.ConceptualModel.AddItem(enumType);
+                model.ConceptualModel.AddItem(CreateEnumType());
 
                 var mockType = new Mock<Type>();
                 mockType
@@ -259,25 +267,14 @@ namespace CodeFirstStoreFunctions
                 Assert.Equal("EnumFunctionImportComposable", functionDescriptor.Name);
                 Assert.Equal(2, functionDescriptor.Parameters.Count());
                 Assert.Equal("Model.TestEnumType", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.True(functionDescriptor.IsComposable);
+                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
             }
 
             [Fact]
             public void FindFunctions_creates_function_descriptors_taking_and_returning_nullable_enums()
             {
-                var enumTypeCtor =
-                    typeof (EnumType).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
-                        .Single(c => c.GetParameters().Count() == 5);
-                var enumType = (EnumType) enumTypeCtor.Invoke(BindingFlags.NonPublic | BindingFlags.Instance, null,
-                    new object[]
-                    {
-                        "TestEnumType", "Model", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32), false,
-                        DataSpace.CSpace
-                    },
-                    CultureInfo.InvariantCulture);
-
                 var model = CreateModel();
-                model.ConceptualModel.AddItem(enumType);
+                model.ConceptualModel.AddItem(CreateEnumType());
 
                 var mockType = new Mock<Type>();
                 mockType
@@ -295,7 +292,7 @@ namespace CodeFirstStoreFunctions
                 Assert.Equal("EnumFunctionImportWithNullableEnums", functionDescriptor.Name);
                 Assert.Equal(1, functionDescriptor.Parameters.Count());
                 Assert.Equal("Model.TestEnumType", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.True(functionDescriptor.IsComposable);
+                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
             }
 
             [Fact]
@@ -320,7 +317,7 @@ namespace CodeFirstStoreFunctions
                 Assert.Equal("StoredProcToComplexTypes", functionDescriptor.Name);
                 Assert.Equal(0, functionDescriptor.Parameters.Count());
                 Assert.Equal("Model.TestComplexType", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.False(functionDescriptor.IsComposable);
+                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.StoredProcedure);
             }
 
             [Fact]
@@ -436,7 +433,7 @@ namespace CodeFirstStoreFunctions
                 Assert.Equal("param", functionDescriptor.Parameters.First().Key);
                 Assert.Equal("Edm.String", functionDescriptor.Parameters.First().Value.FullName);
                 Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.True(functionDescriptor.IsComposable);
+                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
             }
 
             [Fact]
@@ -461,7 +458,104 @@ namespace CodeFirstStoreFunctions
                 Assert.Equal("param", functionDescriptor.Parameters.First().Key);
                 Assert.Equal("Edm.String", functionDescriptor.Parameters.First().Value.FullName);
                 Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.True(functionDescriptor.IsComposable);
+                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
+            }
+
+            [Fact]
+            public void FindFunctions_creates_function_descriptors_for_primitive_udfs()
+            {
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(new[] { typeof(Fake).GetMethod("ScalarUdfPrimitiveType") });
+
+                var functionDescriptor =
+                    new FunctionDiscovery(CreateModel(), mockType.Object)
+                        .FindFunctions().SingleOrDefault();
+
+                Assert.NotNull(functionDescriptor);
+                Assert.Equal(1, functionDescriptor.Parameters.Count());
+                Assert.Equal("param", functionDescriptor.Parameters.First().Key);
+                Assert.Equal("Edm.String", functionDescriptor.Parameters.First().Value.FullName);
+                Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
+                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.ScalarUserDefinedFunction);
+            }
+
+            [Fact]
+            public void FindFunctions_throws_for_udfs_returning_enum_types()
+            {
+                var model = CreateModel();
+                model.ConceptualModel.AddItem(CreateEnumType());
+
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(new[] { typeof(Fake).GetMethod("UdfReturningEnumType") });
+
+                var message =
+                    Assert.Throws<InvalidOperationException>(() =>
+                        new FunctionDiscovery(model, mockType.Object)
+                            .FindFunctions().ToArray()).Message;
+
+                Assert.Contains("TestEnumType", message);
+                Assert.Contains("UdfReturningEnumType", message);
+            }
+
+            [Fact]
+            public void FindFunctions_throws_for_udfs_returning_complex_types()
+            {
+                var model = CreateModel();
+                model.ConceptualModel.AddItem(CreateComplexType());
+
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(new[] { typeof(Fake).GetMethod("UdfReturningComplexType") });
+
+                var message =
+                    Assert.Throws<InvalidOperationException>(() =>
+                        new FunctionDiscovery(model, mockType.Object)
+                            .FindFunctions().ToArray()).Message;
+
+                Assert.Contains("TestComplexType", message);
+                Assert.Contains("UdfReturningComplexType", message);
+            }
+
+            [Fact]
+            public void FindFunctions_throws_for_udfs_returning_entity_types()
+            {
+                var model = CreateModel();
+                model.ConceptualModel.AddItem(CreateEntityType());
+
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(new[] { typeof(Fake).GetMethod("UdfReturningEntityType") });
+
+                var message =
+                    Assert.Throws<InvalidOperationException>(() =>
+                        new FunctionDiscovery(model, mockType.Object)
+                            .FindFunctions().ToList()).Message;
+
+                Assert.Contains("TestEntityType", message);
+                Assert.Contains("UdfReturningEntityType", message);
+            }
+
+            [Fact]
+            public void FindFunctions_throws_if_udf_not_in_UdfNotInCodeFirstDatabaseSchema_namespace()
+            {
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(new[] { typeof(Fake).GetMethod("UdfNotInCodeFirstDatabaseSchema") });
+
+                var message =
+                    Assert.Throws<InvalidOperationException>(() =>
+                        new FunctionDiscovery(CreateModel(), mockType.Object)
+                            .FindFunctions().ToList()).Message;
+
+                Assert.Contains("'DbFunction'", message);
+                Assert.Contains("'CodeFirstDatabaseSchema'", message);                
             }
 
             private static DbModel CreateModel()
@@ -469,6 +563,21 @@ namespace CodeFirstStoreFunctions
                 return
                     new DbModelBuilder()
                         .Build(new DbProviderInfo("System.Data.SqlClient", "2012"));
+            }
+
+            private static EnumType CreateEnumType()
+            {
+                var enumTypeCtor =
+                    typeof(EnumType).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
+                        .Single(c => c.GetParameters().Count() == 5);
+                var enumType = (EnumType)enumTypeCtor.Invoke(BindingFlags.NonPublic | BindingFlags.Instance, null,
+                    new object[]
+                    {
+                        "TestEnumType", "Model", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32), false,
+                        DataSpace.CSpace
+                    },
+                    CultureInfo.InvariantCulture);
+                return enumType;
             }
 
             private static ComplexType CreateComplexType()
@@ -494,7 +603,7 @@ namespace CodeFirstStoreFunctions
                     TypeUsage.CreateDefaultTypeUsage(PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String)));
 
                 return
-                    EntityType.Create("Entity", "Model", DataSpace.CSpace, new[] {"Id"},
+                    EntityType.Create("TestEntityType", "Model", DataSpace.CSpace, new[] {"Id"},
                         new[] {idProperty, nameProperty}, null);
             }
         }

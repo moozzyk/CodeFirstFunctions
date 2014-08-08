@@ -19,15 +19,16 @@ namespace CodeFirstStoreFunctions
                     new KeyValuePair<string, EdmType>("p2", edmType),
                 };
 
-            var functionDescriptor = 
-                new FunctionDescriptor("Func", parameters, new EdmType[] { edmType }, "result", "dbo", isComposable: true);
+            var functionDescriptor =
+                new FunctionDescriptor("Func", parameters, new EdmType[] { edmType }, 
+                    "result", "dbo", StoreFunctionKind.TableValuedFunction);
 
             Assert.Equal("Func", functionDescriptor.Name);
             Assert.Same(edmType, functionDescriptor.ReturnTypes[0]);
             Assert.Equal(parameters, functionDescriptor.Parameters);
             Assert.Equal("result", functionDescriptor.ResultColumnName);
             Assert.Equal("dbo", functionDescriptor.DatabaseSchema);
-            Assert.True(functionDescriptor.IsComposable);
+            Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
         }
     }
 }

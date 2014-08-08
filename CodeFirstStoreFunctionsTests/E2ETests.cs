@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Pawel Kadluczka, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Xml;
+
 namespace CodeFirstStoreFunctions
 {
     using System;
@@ -201,6 +203,12 @@ namespace CodeFirstStoreFunctions
         {
             return ((IObjectContextAdapter) this).ObjectContext.ExecuteFunction<Airport_ResultType>("MultipleResultSets");
         }
+
+        [DbFunction("CodeFirstDatabaseSchema", "EchoNumber")]
+        public static int? ScalarFuncEchoNumber(int? number)
+        {
+            throw new NotSupportedException();
+        }
     }
 
     #region initializer
@@ -397,6 +405,12 @@ namespace CodeFirstStoreFunctions
                 "RETURNS TABLE " +
                 "RETURN " +
                 "SELECT 1 AS [Number]");
+
+            context.Database.ExecuteSqlCommand(
+                "CREATE FUNCTION EchoNumber(@number int) RETURNS int AS " +
+                "BEGIN  " +
+                "   RETURN @number " +
+                "END");
         }
     }
     
@@ -626,6 +640,26 @@ namespace CodeFirstStoreFunctions
             {
                 Assert.Equal(new[] { 1 }, ctx.FunctionWhoseNameIsDifferentThenTVFName().ToList());
             }            
+        }
+
+        [Fact]
+        public void Can_invoke_scalar_function_returning_primitive_type_value()
+        {
+            const string expectedSql =
+                @"SELECT 
+    [Extent1].[Discriminator] AS [Discriminator], 
+    [Extent1].[Id] AS [Id], 
+    [Extent1].[ProductionDate] AS [ProductionDate], 
+    [Extent1].[Code] AS [Code]
+    FROM [dbo].[Vehicles] AS [Extent1]
+    WHERE ([Extent1].[Discriminator] IN (N'Aircraft',N'Vehicle')) AND ([Extent1].[Id] = ([dbo].[EchoNumber]([Extent1].[Id])))";
+
+            using (var ctx = new MyContext())
+            {
+                var q = ctx.Vehicles.Where(v => v.Id == MyContext.ScalarFuncEchoNumber(v.Id));
+                Assert.Equal(expectedSql, q.ToString());
+                Assert.Equal(1, q.Count());
+            }
         }
     }
 }

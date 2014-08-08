@@ -82,6 +82,7 @@
     <Compile Include="FunctionsConvention.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StoreFunctionBuilder.cs" />
+    <Compile Include="StoreFunctionKind.cs" />
     <Compile Include="Tools.cs" />
   </ItemGroup>
   <ItemGroup>

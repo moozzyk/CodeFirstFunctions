@@ -14,23 +14,23 @@ namespace CodeFirstStoreFunctions
         private readonly KeyValuePair<string, EdmType>[] _parameters;
         private readonly string _resultColumnName;
         private readonly string _databaseSchema;
-        private readonly bool _isComposable;
+        private readonly StoreFunctionKind _storeFunctionKind;
 
-        public FunctionDescriptor(string name, IEnumerable<KeyValuePair<string, EdmType>> parameters, 
-            EdmType[] returnTypes, string resultColumnName, string databaseSchema, bool isComposable)
+        public FunctionDescriptor(string name, IEnumerable<KeyValuePair<string, EdmType>> parameters,
+            EdmType[] returnTypes, string resultColumnName, string databaseSchema, StoreFunctionKind storeFunctionKind)
       {
             Debug.Assert(!string.IsNullOrWhiteSpace(name), "invalid name");
             Debug.Assert(parameters != null, "parameters is null");
             Debug.Assert(parameters.All(p => p.Value != null), "invalid parameter type");
             Debug.Assert(returnTypes != null && returnTypes.Length > 0, "returnTypes array is null or empty");
-            Debug.Assert(!isComposable || returnTypes.Length == 1, "multiple return types for composable function");
+            Debug.Assert(storeFunctionKind == StoreFunctionKind.StoredProcedure|| returnTypes.Length == 1, "multiple return types for non-sproc");
 
             _name = name;
             _returnTypes = returnTypes;
             _parameters = parameters.ToArray();
             _resultColumnName = resultColumnName;
             _databaseSchema = databaseSchema;
-            _isComposable = isComposable;
+            _storeFunctionKind = storeFunctionKind;
         }
 
         public string Name
@@ -58,9 +58,9 @@ namespace CodeFirstStoreFunctions
             get { return _databaseSchema; }
         }
 
-        public bool IsComposable
+        public StoreFunctionKind StoreFunctionKind
         {
-            get { return _isComposable; }
+            get { return _storeFunctionKind; }
         }
     }
 }

@@ -41,6 +41,8 @@ namespace CodeFirstStoreFunctions
                 bindingFlags |= BindingFlags.Instance;
             }
 
+            bindingFlags |= BindingFlags.Static;
+
             foreach (var method in _type.GetMethods(bindingFlags))
             {
                 var functionDescriptor = CreateFunctionDescriptor(method);
@@ -58,21 +60,37 @@ namespace CodeFirstStoreFunctions
                 ? method.ReturnType.GetGenericTypeDefinition()
                 : null;
             
-            if((returnGenericTypeDefinition == typeof (IQueryable<>) && functionAttribute != null) ||  //TVF
-               returnGenericTypeDefinition == typeof (ObjectResult<>))                                 // StoredProc
+            if(functionAttribute != null ||                             //TVF or scalar UDF
+               returnGenericTypeDefinition == typeof (ObjectResult<>))  // StoredProc
             {
                 var functionDetailsAttr = 
                     Attribute.GetCustomAttribute(method, typeof(DbFunctionDetailsAttribute)) as DbFunctionDetailsAttribute;
 
-                var isComposable = returnGenericTypeDefinition == typeof (IQueryable<>);
+                var storeFunctionKind =
+                    returnGenericTypeDefinition == typeof (IQueryable<>)
+                        ? StoreFunctionKind.TableValuedFunction
+                        : returnGenericTypeDefinition == typeof (ObjectResult<>)
+                            ? StoreFunctionKind.StoredProcedure
+                            : StoreFunctionKind.ScalarUserDefinedFunction;
+
+                if (storeFunctionKind == StoreFunctionKind.ScalarUserDefinedFunction && 
+                    (functionAttribute == null || functionAttribute.NamespaceName != "CodeFirstDatabaseSchema"))
+                {
+                    throw new InvalidOperationException("Scalar store functions must be decorated with the 'DbFunction' attribute with the 'CodeFirstDatabaseSchema' namespace.");
+                }
+
+                var unwrapperReturnType =
+                    storeFunctionKind == StoreFunctionKind.ScalarUserDefinedFunction
+                        ? method.ReturnType
+                        : method.ReturnType.GetGenericArguments()[0];
 
                 return new FunctionDescriptor(
                     (functionAttribute != null ? functionAttribute.FunctionName : null) ?? method.Name,
                     GetParameters(method),
-                    GetReturnTypes(method.Name, method.ReturnType.GetGenericArguments()[0], functionDetailsAttr, isComposable),
+                    GetReturnTypes(method.Name, unwrapperReturnType, functionDetailsAttr, storeFunctionKind),
                     functionDetailsAttr != null ? functionDetailsAttr.ResultColumnName : null,
                     functionDetailsAttr != null ? functionDetailsAttr.DatabaseSchema : null,
-                    isComposable);
+                    storeFunctionKind);
             }
 
             return null;
@@ -112,13 +130,13 @@ namespace CodeFirstStoreFunctions
         }
 
         private EdmType[] GetReturnTypes(string methodName, Type methodReturnType,
-            DbFunctionDetailsAttribute functionDetailsAttribute, bool isComposable)
+            DbFunctionDetailsAttribute functionDetailsAttribute, StoreFunctionKind storeFunctionKind)
         {
             Debug.Assert(methodReturnType != null, "methodReturnType is null");
 
             var resultTypes = functionDetailsAttribute != null ? functionDetailsAttribute.ResultTypes : null;
 
-            if (isComposable && resultTypes != null)
+            if (storeFunctionKind != StoreFunctionKind.StoredProcedure && resultTypes != null)
             {
                 throw new InvalidOperationException(
                     "The DbFunctionDetailsAttribute.ResultTypes property should be used only for stored procedures returning multiple resultsets and must be null for composable function imports.");
@@ -134,7 +152,18 @@ namespace CodeFirstStoreFunctions
                         methodName, methodReturnType.FullName, resultTypes[0].FullName));
             }
 
-            return (resultTypes ?? new[] {methodReturnType}).Select(GetReturnEdmItemType).ToArray();
+            var edmResultTypes = (resultTypes ?? new[] {methodReturnType}).Select(GetReturnEdmItemType).ToArray();
+
+            if (storeFunctionKind == StoreFunctionKind.ScalarUserDefinedFunction &&
+                edmResultTypes[0].BuiltInTypeKind != BuiltInTypeKind.PrimitiveType)
+            {
+                throw new InvalidOperationException(
+                    string.Format(
+                        "The type '{0}' returned by the method '{1}' cannot be mapped to an Edm primitive type. Scalar user defined functions have to return types that can be mapped to Edm primitive types.",
+                        methodReturnType.FullName, methodName));
+            }
+
+            return edmResultTypes;
         }
 
         private EdmType GetReturnEdmItemType(Type type)

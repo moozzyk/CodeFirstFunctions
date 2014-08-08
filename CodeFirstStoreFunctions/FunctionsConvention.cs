@@ -28,32 +28,36 @@ namespace CodeFirstStoreFunctions
 
             foreach (var functionDescriptor in functionDescriptors)
             {
-                var functionImportDefinition = CreateFunctionImport(model, functionDescriptor);
                 var storeFunctionDefinition = storeFunctionBuilder.Create(functionDescriptor);
-                model.ConceptualModel.Container.AddFunctionImport(functionImportDefinition);
                 model.StoreModel.AddItem(storeFunctionDefinition);
 
-                if (functionImportDefinition.IsComposableAttribute)
+                if (functionDescriptor.StoreFunctionKind != StoreFunctionKind.ScalarUserDefinedFunction)
                 {
-                    model.ConceptualToStoreMapping.AddFunctionImportMapping(
-                        new FunctionImportMappingComposable(
-                            functionImportDefinition,
-                            storeFunctionDefinition,
-                            new FunctionImportResultMapping(),
-                            model.ConceptualToStoreMapping));
-                }
-                else
-                {
-                    model.ConceptualToStoreMapping.AddFunctionImportMapping(
-                        new FunctionImportMappingNonComposable(
-                            functionImportDefinition,
-                            storeFunctionDefinition,
-                            new FunctionImportResultMapping[0],
-                            model.ConceptualToStoreMapping));
+                    var functionImportDefinition = CreateFunctionImport(model, functionDescriptor);
+                    model.ConceptualModel.Container.AddFunctionImport(functionImportDefinition);
+
+                    if (functionImportDefinition.IsComposableAttribute)
+                    {
+                        model.ConceptualToStoreMapping.AddFunctionImportMapping(
+                            new FunctionImportMappingComposable(
+                                functionImportDefinition,
+                                storeFunctionDefinition,
+                                new FunctionImportResultMapping(),
+                                model.ConceptualToStoreMapping));
+                    }
+                    else
+                    {
+                        model.ConceptualToStoreMapping.AddFunctionImportMapping(
+                            new FunctionImportMappingNonComposable(
+                                functionImportDefinition,
+                                storeFunctionDefinition,
+                                new FunctionImportResultMapping[0],
+                                model.ConceptualToStoreMapping));
+                    }
                 }
             }
 
-            // TODO: scalar functions?, model defined functions?
+            // TODO: model defined functions?
         }
 
         private static EdmFunction CreateFunctionImport(DbModel model, FunctionDescriptor functionImport)
@@ -71,7 +75,7 @@ namespace CodeFirstStoreFunctions
                             .Select(p => FunctionParameter.Create(p.Key, p.Value, ParameterMode.In))
                             .ToList(),
                     ReturnParameters = returnParameters,
-                    IsComposable = functionImport.IsComposable,
+                    IsComposable = functionImport.StoreFunctionKind == StoreFunctionKind.TableValuedFunction,
                     IsFunctionImport = true,
                     EntitySets = entitySets
                 };

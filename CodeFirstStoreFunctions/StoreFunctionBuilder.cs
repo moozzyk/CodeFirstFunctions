@@ -39,23 +39,8 @@ namespace CodeFirstStoreFunctions
                         functionDescriptor.Name));
             }
 
-            var returnParameters = new List<FunctionParameter>();
-            if (functionDescriptor.IsComposable)
-            {
-                Debug.Assert(functionDescriptor.ReturnTypes.Length == 1, "Expected only one returnType for composable functions");
-
-                var returnEdmType =
-                    CreateReturnRowType(functionDescriptor.ResultColumnName, functionDescriptor.ReturnTypes[0]);
-
-                returnParameters.Add(
-                    FunctionParameter.Create(
-                        "ReturnParam",
-                        returnEdmType.GetCollectionType(),
-                        ParameterMode.ReturnValue));
-            }
-
             var functionPayload =
-                new EdmFunctionPayload()
+                new EdmFunctionPayload
                 {
                     Parameters = functionDescriptor
                         .Parameters
@@ -68,8 +53,8 @@ namespace CodeFirstStoreFunctions
                                         : p.Value), 
                                 ParameterMode.In)).ToArray(),
 
-                    ReturnParameters = returnParameters,
-                    IsComposable = functionDescriptor.IsComposable,
+                    ReturnParameters = CreateFunctionReturnParameters(functionDescriptor),
+                    IsComposable = functionDescriptor.StoreFunctionKind != StoreFunctionKind.StoredProcedure,
                     Schema = functionDescriptor.DatabaseSchema ?? _schema,
                 };
 
@@ -79,6 +64,39 @@ namespace CodeFirstStoreFunctions
                 DataSpace.SSpace,
                 functionPayload,
                 null);
+        }
+
+        private List<FunctionParameter> CreateFunctionReturnParameters(FunctionDescriptor functionDescriptor)
+        {
+            var returnParameters = new List<FunctionParameter>();
+
+            EdmType returnEdmType = null;
+            switch (functionDescriptor.StoreFunctionKind)
+            {
+                case StoreFunctionKind.TableValuedFunction:
+                    Debug.Assert(functionDescriptor.ReturnTypes.Length == 1, "Expected only one returnType for composable functions");
+                    returnEdmType =
+                        CreateReturnRowType(functionDescriptor.ResultColumnName, functionDescriptor.ReturnTypes[0])
+                            .GetCollectionType();
+                    break;
+                case StoreFunctionKind.ScalarUserDefinedFunction:
+                    var returnPrimtiveType = functionDescriptor.ReturnTypes[0].BuiltInTypeKind == BuiltInTypeKind.EnumType
+                        ? ((EnumType) functionDescriptor.ReturnTypes[0]).UnderlyingType
+                        : functionDescriptor.ReturnTypes[0];
+                    returnEdmType = GetStorePrimitiveType(returnPrimtiveType);
+                    break;
+            }
+
+            if (returnEdmType != null)
+            {
+                returnParameters.Add(
+                    FunctionParameter.Create(
+                        "ReturnParam",
+                        returnEdmType,
+                        ParameterMode.ReturnValue));
+            }
+
+            return returnParameters;
         }
 
         private EdmType CreateReturnRowType(string propertyName, EdmType edmType)
