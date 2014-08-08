@@ -31,7 +31,7 @@ namespace CodeFirstStoreFunctions
 
     public class FunctionDiscoveryTests
     {
-        public class FindFunctionImportsTests
+        public class FindFunctionsTests
         {
             private class Fake
             {
@@ -110,7 +110,7 @@ namespace CodeFirstStoreFunctions
                     throw new NotImplementedException();
                 }
 
-                [DbFunctionDetails(ResultTypes = new [] { typeof(int)})]
+                [DbFunctionDetails(ResultTypes = new[] {typeof (int)})]
                 public ObjectResult<byte> StoredProcReturnTypeAndResultTypeMismatch()
                 {
                     throw new NotImplementedException();
@@ -144,29 +144,29 @@ namespace CodeFirstStoreFunctions
             }
 
             [Fact]
-            public void FindFunctionImports_creates_function_imports_returning_primitive_types()
+            public void FindFunctions_creates_function_descriptors_returning_primitive_types()
             {
                 var mockType = new Mock<Type>();
                 mockType
                     .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
-                    .Returns(typeof(Fake)
+                    .Returns(typeof (Fake)
                         .GetMethods()
                         .Where(m => m.Name == "PrimitiveFunctionImportComposable" || m.Name == "NotAFunctionImport")
                         .ToArray());
 
-                var functionImport = 
+                var functionDescriptor =
                     new FunctionDiscovery(CreateModel(), mockType.Object)
-                        .FindFunctionImports().Single();
+                        .FindFunctions().Single();
 
-                Assert.NotNull(functionImport);
-                Assert.Equal("PrimitiveFunctionImportComposable", functionImport.Name);
-                Assert.Equal(2, functionImport.Parameters.Count());
-                Assert.Equal("Edm.Int32", functionImport.ReturnTypes[0].FullName);
-                Assert.True(functionImport.IsComposable);
+                Assert.NotNull(functionDescriptor);
+                Assert.Equal("PrimitiveFunctionImportComposable", functionDescriptor.Name);
+                Assert.Equal(2, functionDescriptor.Parameters.Count());
+                Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
+                Assert.True(functionDescriptor.IsComposable);
             }
 
             [Fact]
-            public void FindFunctionImports_creates_function_imports_returning_complex_types()
+            public void FindFunctions_creates_function_descriptors_returning_complex_types()
             {
                 var model = CreateModel();
                 model.ConceptualModel.AddItem(CreateComplexType());
@@ -174,28 +174,34 @@ namespace CodeFirstStoreFunctions
                 var mockType = new Mock<Type>();
                 mockType
                     .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
-                    .Returns(typeof(Fake)
+                    .Returns(typeof (Fake)
                         .GetMethods()
                         .Where(m => m.Name == "FunctionImportReturningComplexTypesComposable")
                         .ToArray());
 
-                var functionImport =
+                var functionDescriptor =
                     new FunctionDiscovery(model, mockType.Object)
-                        .FindFunctionImports().Single();
+                        .FindFunctions().Single();
 
-                Assert.NotNull(functionImport);
-                Assert.Equal("FunctionImportReturningComplexTypesComposable", functionImport.Name);
-                Assert.Equal(0, functionImport.Parameters.Count());
-                Assert.Equal("Model.TestComplexType", functionImport.ReturnTypes[0].FullName);
-                Assert.True(functionImport.IsComposable);
+                Assert.NotNull(functionDescriptor);
+                Assert.Equal("FunctionImportReturningComplexTypesComposable", functionDescriptor.Name);
+                Assert.Equal(0, functionDescriptor.Parameters.Count());
+                Assert.Equal("Model.TestComplexType", functionDescriptor.ReturnTypes[0].FullName);
+                Assert.True(functionDescriptor.IsComposable);
             }
 
             [Fact]
-            public void FindFunctionImports_creates_function_imports_taking_and_returning_nullable_primitive_types()
+            public void FindFunctions_creates_function_descriptors_taking_and_returning_nullable_primitive_types()
             {
-                var enumTypeCtor = typeof(EnumType).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance).Single(c => c.GetParameters().Count() == 5);
-                var enumType = (EnumType)enumTypeCtor.Invoke(BindingFlags.NonPublic | BindingFlags.Instance, null,
-                    new object[] { "TestEnumType", "Model", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32), false, DataSpace.CSpace },
+                var enumTypeCtor =
+                    typeof (EnumType).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
+                        .Single(c => c.GetParameters().Count() == 5);
+                var enumType = (EnumType) enumTypeCtor.Invoke(BindingFlags.NonPublic | BindingFlags.Instance, null,
+                    new object[]
+                    {
+                        "TestEnumType", "Model", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32), false,
+                        DataSpace.CSpace
+                    },
                     CultureInfo.InvariantCulture);
 
                 var model = CreateModel();
@@ -204,28 +210,34 @@ namespace CodeFirstStoreFunctions
                 var mockType = new Mock<Type>();
                 mockType
                     .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
-                    .Returns(typeof(Fake)
+                    .Returns(typeof (Fake)
                         .GetMethods()
                         .Where(m => m.Name == "PrimitiveFunctionImportWithNullablePrimitiveTypes")
                         .ToArray());
 
-                var functionImport =
+                var functionDescriptor =
                     new FunctionDiscovery(model, mockType.Object)
-                        .FindFunctionImports().SingleOrDefault();
+                        .FindFunctions().SingleOrDefault();
 
-                Assert.NotNull(functionImport);
-                Assert.Equal("PrimitiveFunctionImportWithNullablePrimitiveTypes", functionImport.Name);
-                Assert.Equal(1, functionImport.Parameters.Count());
-                Assert.Equal("Edm.Int32", functionImport.ReturnTypes[0].FullName);
-                Assert.True(functionImport.IsComposable);
+                Assert.NotNull(functionDescriptor);
+                Assert.Equal("PrimitiveFunctionImportWithNullablePrimitiveTypes", functionDescriptor.Name);
+                Assert.Equal(1, functionDescriptor.Parameters.Count());
+                Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
+                Assert.True(functionDescriptor.IsComposable);
             }
 
             [Fact]
-            public void FindFunctionImports_creates_function_imports_returning_enum_types()
+            public void FindFunctions_creates_function_descriptors_returning_enum_types()
             {
-                var enumTypeCtor = typeof (EnumType).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance).Single(c => c.GetParameters().Count() == 5);
-                var enumType = (EnumType)enumTypeCtor.Invoke(BindingFlags.NonPublic | BindingFlags.Instance, null,
-                    new object[] {"TestEnumType", "Model", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32), false, DataSpace.CSpace}, 
+                var enumTypeCtor =
+                    typeof (EnumType).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
+                        .Single(c => c.GetParameters().Count() == 5);
+                var enumType = (EnumType) enumTypeCtor.Invoke(BindingFlags.NonPublic | BindingFlags.Instance, null,
+                    new object[]
+                    {
+                        "TestEnumType", "Model", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32), false,
+                        DataSpace.CSpace
+                    },
                     CultureInfo.InvariantCulture);
 
                 var model = CreateModel();
@@ -234,28 +246,34 @@ namespace CodeFirstStoreFunctions
                 var mockType = new Mock<Type>();
                 mockType
                     .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
-                    .Returns(typeof(Fake)
+                    .Returns(typeof (Fake)
                         .GetMethods()
                         .Where(m => m.Name == "EnumFunctionImportComposable")
                         .ToArray());
 
-                var functionImport =
+                var functionDescriptor =
                     new FunctionDiscovery(model, mockType.Object)
-                        .FindFunctionImports().Single();
+                        .FindFunctions().Single();
 
-                Assert.NotNull(functionImport);
-                Assert.Equal("EnumFunctionImportComposable", functionImport.Name);
-                Assert.Equal(2, functionImport.Parameters.Count());
-                Assert.Equal("Model.TestEnumType", functionImport.ReturnTypes[0].FullName);
-                Assert.True(functionImport.IsComposable);
+                Assert.NotNull(functionDescriptor);
+                Assert.Equal("EnumFunctionImportComposable", functionDescriptor.Name);
+                Assert.Equal(2, functionDescriptor.Parameters.Count());
+                Assert.Equal("Model.TestEnumType", functionDescriptor.ReturnTypes[0].FullName);
+                Assert.True(functionDescriptor.IsComposable);
             }
 
             [Fact]
-            public void FindFunctionImports_creates_function_imports_taking_and_returning_nullable_enums()
+            public void FindFunctions_creates_function_descriptors_taking_and_returning_nullable_enums()
             {
-                var enumTypeCtor = typeof(EnumType).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance).Single(c => c.GetParameters().Count() == 5);
-                var enumType = (EnumType)enumTypeCtor.Invoke(BindingFlags.NonPublic | BindingFlags.Instance, null,
-                    new object[] { "TestEnumType", "Model", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32), false, DataSpace.CSpace },
+                var enumTypeCtor =
+                    typeof (EnumType).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
+                        .Single(c => c.GetParameters().Count() == 5);
+                var enumType = (EnumType) enumTypeCtor.Invoke(BindingFlags.NonPublic | BindingFlags.Instance, null,
+                    new object[]
+                    {
+                        "TestEnumType", "Model", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32), false,
+                        DataSpace.CSpace
+                    },
                     CultureInfo.InvariantCulture);
 
                 var model = CreateModel();
@@ -264,24 +282,24 @@ namespace CodeFirstStoreFunctions
                 var mockType = new Mock<Type>();
                 mockType
                     .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
-                    .Returns(typeof(Fake)
+                    .Returns(typeof (Fake)
                         .GetMethods()
                         .Where(m => m.Name == "EnumFunctionImportWithNullableEnums")
                         .ToArray());
 
-                var functionImport =
+                var functionDescriptor =
                     new FunctionDiscovery(model, mockType.Object)
-                        .FindFunctionImports().SingleOrDefault();
+                        .FindFunctions().SingleOrDefault();
 
-                Assert.NotNull(functionImport);
-                Assert.Equal("EnumFunctionImportWithNullableEnums", functionImport.Name);
-                Assert.Equal(1, functionImport.Parameters.Count());
-                Assert.Equal("Model.TestEnumType", functionImport.ReturnTypes[0].FullName);
-                Assert.True(functionImport.IsComposable);
+                Assert.NotNull(functionDescriptor);
+                Assert.Equal("EnumFunctionImportWithNullableEnums", functionDescriptor.Name);
+                Assert.Equal(1, functionDescriptor.Parameters.Count());
+                Assert.Equal("Model.TestEnumType", functionDescriptor.ReturnTypes[0].FullName);
+                Assert.True(functionDescriptor.IsComposable);
             }
 
             [Fact]
-            public void FindFunctionImports_creates_function_imports_returning_complex_types_non_composable()
+            public void FindFunctions_creates_function_descriptors_returning_complex_types_non_composable()
             {
                 var model = CreateModel();
                 model.ConceptualModel.AddItem(CreateComplexType());
@@ -289,54 +307,54 @@ namespace CodeFirstStoreFunctions
                 var mockType = new Mock<Type>();
                 mockType
                     .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
-                    .Returns(typeof(Fake)
+                    .Returns(typeof (Fake)
                         .GetMethods()
                         .Where(m => m.Name == "StoredProcToComplexTypes")
                         .ToArray());
 
-                var functionImport =
+                var functionDescriptor =
                     new FunctionDiscovery(model, mockType.Object)
-                        .FindFunctionImports().SingleOrDefault();
+                        .FindFunctions().SingleOrDefault();
 
-                Assert.NotNull(functionImport);
-                Assert.Equal("StoredProcToComplexTypes", functionImport.Name);
-                Assert.Equal(0, functionImport.Parameters.Count());
-                Assert.Equal("Model.TestComplexType", functionImport.ReturnTypes[0].FullName);
-                Assert.False(functionImport.IsComposable);
+                Assert.NotNull(functionDescriptor);
+                Assert.Equal("StoredProcToComplexTypes", functionDescriptor.Name);
+                Assert.Equal(0, functionDescriptor.Parameters.Count());
+                Assert.Equal("Model.TestComplexType", functionDescriptor.ReturnTypes[0].FullName);
+                Assert.False(functionDescriptor.IsComposable);
             }
 
             [Fact]
-            public void FindFunctionImports_creates_function_imports_with_custom_names()
+            public void FindFunctions_creates_function_descriptors_with_custom_names()
             {
                 var mockType = new Mock<Type>();
                 mockType
                     .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
-                    .Returns(typeof(Fake)
+                    .Returns(typeof (Fake)
                         .GetMethods()
                         .Where(m => m.Name == "FuncWithDifferentNames")
                         .ToArray());
 
-                var functionImport =
+                var functionDescriptor =
                     new FunctionDiscovery(CreateModel(), mockType.Object)
-                        .FindFunctionImports().Single();
+                        .FindFunctions().Single();
 
-                Assert.NotNull(functionImport);
-                Assert.Equal("storeFuncName", functionImport.Name);
+                Assert.NotNull(functionDescriptor);
+                Assert.Equal("storeFuncName", functionDescriptor.Name);
             }
 
             [Fact]
-            public void FindFunctionImports_throws_for_function_imports_with_invalid_parameters()
+            public void FindFunctions_throws_for_function_descriptors_with_invalid_parameters()
             {
                 var mockType = new Mock<Type>();
                 mockType
                     .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
-                    .Returns(new[] { typeof(Fake).GetMethod("InvalidParamFunc") });
+                    .Returns(new[] {typeof (Fake).GetMethod("InvalidParamFunc")});
 
-                var message = 
+                var message =
                     Assert.Throws<InvalidOperationException>(
                         () => new FunctionDiscovery(CreateModel(), mockType.Object)
-                                .FindFunctionImports()
-                                .ToArray()).Message;
+                            .FindFunctions()
+                            .ToArray()).Message;
 
                 Assert.Contains("System.Object", message);
                 Assert.Contains("p1", message);
@@ -344,50 +362,50 @@ namespace CodeFirstStoreFunctions
             }
 
             [Fact]
-            public void FindFunctionImports_throws_for_TVFs_with_ResultTypes()
+            public void FindFunctions_throws_for_TVFs_with_ResultTypes()
             {
                 var mockType = new Mock<Type>();
                 mockType
                     .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
-                    .Returns(new[] { typeof(Fake).GetMethod("TVFWithResultTypes") });
+                    .Returns(new[] {typeof (Fake).GetMethod("TVFWithResultTypes")});
 
                 var message =
                     Assert.Throws<InvalidOperationException>(
                         () => new FunctionDiscovery(CreateModel(), mockType.Object)
-                                .FindFunctionImports()
-                                .ToArray()).Message;
+                            .FindFunctions()
+                            .ToArray()).Message;
 
                 Assert.Contains("DbFunctionDetailsAttribute.ResultTypes", message);
             }
 
             [Fact]
-            public void FindFunctionImports_ignores_empty_ResultTypes_for_non_composable()
+            public void FindFunctions_ignores_empty_ResultTypes_for_non_composable()
             {
                 var mockType = new Mock<Type>();
                 mockType
                     .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
-                    .Returns(new[] { typeof(Fake).GetMethod("EmptyResultType") });
+                    .Returns(new[] {typeof (Fake).GetMethod("EmptyResultType")});
 
                 var returnType = new FunctionDiscovery(CreateModel(), mockType.Object)
-                                .FindFunctionImports()
-                                .ToArray()[0].ReturnTypes[0];
+                    .FindFunctions()
+                    .ToArray()[0].ReturnTypes[0];
 
                 Assert.Contains("Edm.Int32", returnType.FullName);
             }
 
             [Fact]
-            public void FindFunctionImports_throws_if_return_type_and_resultTypes_out_of_sync()
+            public void FindFunctions_throws_if_return_type_and_resultTypes_out_of_sync()
             {
                 var mockType = new Mock<Type>();
                 mockType
                     .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
-                    .Returns(new[] { typeof(Fake).GetMethod("StoredProcReturnTypeAndResultTypeMismatch") });
+                    .Returns(new[] {typeof (Fake).GetMethod("StoredProcReturnTypeAndResultTypeMismatch")});
 
                 var message =
                     Assert.Throws<InvalidOperationException>(
                         () => new FunctionDiscovery(CreateModel(), mockType.Object)
-                                .FindFunctionImports()
-                                .ToArray()).Message;
+                            .FindFunctions()
+                            .ToArray()).Message;
 
                 Assert.Contains("ObjectResult<T>", message);
                 Assert.Contains("'StoredProcReturnTypeAndResultTypeMismatch'", message);
@@ -397,53 +415,53 @@ namespace CodeFirstStoreFunctions
             }
 
             [Fact]
-            public void FindFunctionImports_creates_function_imports_for_extension_methods()
+            public void FindFunctions_creates_function_descriptors_for_extension_methods()
             {
                 var mockType = new Mock<Type>();
                 mockType
                     .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
-                    .Returns(new[] { typeof(StaticFake).GetMethod("ExtensionMethod") });
-
-                mockType
-                    .Protected()
-                    .Setup <TypeAttributes>("GetAttributeFlagsImpl")
-                    .Returns(TypeAttributes.Abstract | TypeAttributes.Sealed);
-
-                var functionImport = new FunctionDiscovery(CreateModel(), mockType.Object)
-                                .FindFunctionImports().SingleOrDefault();
-
-                Assert.NotNull(functionImport);
-                Assert.Equal("ExtensionMethod", functionImport.Name);
-                Assert.Equal(1, functionImport.Parameters.Count());
-                Assert.Equal("param", functionImport.Parameters.First().Key);
-                Assert.Equal("Edm.String", functionImport.Parameters.First().Value.FullName);
-                Assert.Equal("Edm.Int32", functionImport.ReturnTypes[0].FullName);
-                Assert.True(functionImport.IsComposable);
-            }
-
-            [Fact]
-            public void FindFunctionImports_creates_function_imports_for_static_methods()
-            {
-                var mockType = new Mock<Type>();
-                mockType
-                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
-                    .Returns(new[] { typeof(StaticFake).GetMethod("StaticMethod") });
+                    .Returns(new[] {typeof (StaticFake).GetMethod("ExtensionMethod")});
 
                 mockType
                     .Protected()
                     .Setup<TypeAttributes>("GetAttributeFlagsImpl")
                     .Returns(TypeAttributes.Abstract | TypeAttributes.Sealed);
 
-                var functionImport = new FunctionDiscovery(CreateModel(), mockType.Object)
-                                .FindFunctionImports().SingleOrDefault();
+                var functionDescriptor = new FunctionDiscovery(CreateModel(), mockType.Object)
+                    .FindFunctions().SingleOrDefault();
 
-                Assert.NotNull(functionImport);
-                Assert.Equal("StaticMethod", functionImport.Name);
-                Assert.Equal(1, functionImport.Parameters.Count());
-                Assert.Equal("param", functionImport.Parameters.First().Key);
-                Assert.Equal("Edm.String", functionImport.Parameters.First().Value.FullName);
-                Assert.Equal("Edm.Int32", functionImport.ReturnTypes[0].FullName);
-                Assert.True(functionImport.IsComposable);
+                Assert.NotNull(functionDescriptor);
+                Assert.Equal("ExtensionMethod", functionDescriptor.Name);
+                Assert.Equal(1, functionDescriptor.Parameters.Count());
+                Assert.Equal("param", functionDescriptor.Parameters.First().Key);
+                Assert.Equal("Edm.String", functionDescriptor.Parameters.First().Value.FullName);
+                Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
+                Assert.True(functionDescriptor.IsComposable);
+            }
+
+            [Fact]
+            public void FindFunctions_creates_function_descriptors_for_static_methods()
+            {
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(new[] {typeof (StaticFake).GetMethod("StaticMethod")});
+
+                mockType
+                    .Protected()
+                    .Setup<TypeAttributes>("GetAttributeFlagsImpl")
+                    .Returns(TypeAttributes.Abstract | TypeAttributes.Sealed);
+
+                var functionDescriptor = new FunctionDiscovery(CreateModel(), mockType.Object)
+                    .FindFunctions().SingleOrDefault();
+
+                Assert.NotNull(functionDescriptor);
+                Assert.Equal("StaticMethod", functionDescriptor.Name);
+                Assert.Equal(1, functionDescriptor.Parameters.Count());
+                Assert.Equal("param", functionDescriptor.Parameters.First().Key);
+                Assert.Equal("Edm.String", functionDescriptor.Parameters.First().Value.FullName);
+                Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
+                Assert.True(functionDescriptor.IsComposable);
             }
 
             private static DbModel CreateModel()
@@ -463,7 +481,7 @@ namespace CodeFirstStoreFunctions
                     TypeUsage.CreateDefaultTypeUsage(PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String)));
 
                 return
-                    ComplexType.Create("TestComplexType", "Model", DataSpace.CSpace, new[] { prop1, prop2 }, null);
+                    ComplexType.Create("TestComplexType", "Model", DataSpace.CSpace, new[] {prop1, prop2}, null);
             }
 
             private static EntityType CreateEntityType()

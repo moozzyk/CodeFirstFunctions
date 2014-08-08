@@ -27,25 +27,25 @@ namespace CodeFirstStoreFunctions
             _namespace = @namespace ?? "CodeFirstDatabaseSchema";
         }
 
-        public EdmFunction Create(FunctionImport functionImport)
+        public EdmFunction Create(FunctionDescriptor functionDescriptor)
         {
-            Debug.Assert(functionImport != null, "functionImport is null");
+            Debug.Assert(functionDescriptor != null, "functionDescriptor is null");
 
-            if (_schema == null && functionImport.DatabaseSchema == null)
+            if (_schema == null && functionDescriptor.DatabaseSchema == null)
             {
                 throw new InvalidOperationException(
                     string.Format(
                         "Database schema is not defined for function '{0}'. Either set a default database schema or use the DbFunctionEx attribute with non-null DatabaseSchema value.",
-                        functionImport.Name));
+                        functionDescriptor.Name));
             }
 
             var returnParameters = new List<FunctionParameter>();
-            if (functionImport.IsComposable)
+            if (functionDescriptor.IsComposable)
             {
-                Debug.Assert(functionImport.ReturnTypes.Length == 1, "Expected only one returnType for composable functions");
+                Debug.Assert(functionDescriptor.ReturnTypes.Length == 1, "Expected only one returnType for composable functions");
 
                 var returnEdmType =
-                    CreateReturnRowType(functionImport.ResultColumnName, functionImport.ReturnTypes[0]);
+                    CreateReturnRowType(functionDescriptor.ResultColumnName, functionDescriptor.ReturnTypes[0]);
 
                 returnParameters.Add(
                     FunctionParameter.Create(
@@ -57,7 +57,7 @@ namespace CodeFirstStoreFunctions
             var functionPayload =
                 new EdmFunctionPayload()
                 {
-                    Parameters = functionImport
+                    Parameters = functionDescriptor
                         .Parameters
                         .Select(
                             p => FunctionParameter.Create(
@@ -69,12 +69,12 @@ namespace CodeFirstStoreFunctions
                                 ParameterMode.In)).ToArray(),
 
                     ReturnParameters = returnParameters,
-                    IsComposable = functionImport.IsComposable,
-                    Schema = functionImport.DatabaseSchema ?? _schema,
+                    IsComposable = functionDescriptor.IsComposable,
+                    Schema = functionDescriptor.DatabaseSchema ?? _schema,
                 };
 
             return EdmFunction.Create(
-                functionImport.Name,
+                functionDescriptor.Name,
                 _namespace,
                 DataSpace.SSpace,
                 functionPayload,

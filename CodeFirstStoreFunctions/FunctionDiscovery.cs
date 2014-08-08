@@ -29,7 +29,7 @@ namespace CodeFirstStoreFunctions
             _isStaticClass = type.IsAbstract && type.IsSealed;
         }
 
-        public IEnumerable<FunctionImport> FindFunctionImports()
+        public IEnumerable<FunctionDescriptor> FindFunctions()
         {
             var bindingFlags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.InvokeMethod;
             if (_isStaticClass)
@@ -43,15 +43,15 @@ namespace CodeFirstStoreFunctions
 
             foreach (var method in _type.GetMethods(bindingFlags))
             {
-                var functionImport = CreateFunctionImport(method);
-                if (functionImport != null)
+                var functionDescriptor = CreateFunctionDescriptor(method);
+                if (functionDescriptor != null)
                 {
-                    yield return functionImport;
+                    yield return functionDescriptor;
                 }
             }
         }
 
-        private FunctionImport CreateFunctionImport(MethodInfo method)
+        private FunctionDescriptor CreateFunctionDescriptor(MethodInfo method)
         {
             var functionAttribute = (DbFunctionAttribute)Attribute.GetCustomAttribute(method, typeof(DbFunctionAttribute));
             var returnGenericTypeDefinition = method.ReturnType.IsGenericType
@@ -66,7 +66,7 @@ namespace CodeFirstStoreFunctions
 
                 var isComposable = returnGenericTypeDefinition == typeof (IQueryable<>);
 
-                return new FunctionImport(
+                return new FunctionDescriptor(
                     (functionAttribute != null ? functionAttribute.FunctionName : null) ?? method.Name,
                     GetParameters(method),
                     GetReturnTypes(method.Name, method.ReturnType.GetGenericArguments()[0], functionDetailsAttr, isComposable),

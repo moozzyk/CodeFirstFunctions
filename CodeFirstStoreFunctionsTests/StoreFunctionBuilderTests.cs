@@ -19,8 +19,8 @@ namespace CodeFirstStoreFunctions
             var model = new DbModelBuilder()
                     .Build(new DbProviderInfo("System.Data.SqlClient", "2012"));
 
-            var functionImport =
-                new FunctionImport(
+            var functionDescriptor =
+                new FunctionDescriptor(
                     "f",
                     new[] { 
                         new KeyValuePair<string, EdmType>(
@@ -29,7 +29,7 @@ namespace CodeFirstStoreFunctions
                     new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
                     "ResultCol", "dbo", isComposable: true);
 
-            var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionImport);
+            var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionDescriptor);
 
             Assert.Equal(
                 BuiltInTypeKind.CollectionType,
@@ -64,8 +64,8 @@ namespace CodeFirstStoreFunctions
                 }, 
                 null);
 
-            var functionImport =
-                new FunctionImport(
+            var functionDescriptor =
+                new FunctionDescriptor(
                     "f",
                     new[] { 
                         new KeyValuePair<string, EdmType>(
@@ -76,7 +76,7 @@ namespace CodeFirstStoreFunctions
                     "dbo",
                     isComposable: false);
 
-            var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionImport);
+            var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionDescriptor);
 
             Assert.Null(storeFunction.ReturnParameter);
 
@@ -97,8 +97,8 @@ namespace CodeFirstStoreFunctions
                 new object[] { "TestEnumType", "Model", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32), false, DataSpace.CSpace },
                 CultureInfo.InvariantCulture);
 
-            var functionImport =
-                new FunctionImport(
+            var functionDescriptor =
+                new FunctionDescriptor(
                     "f",
                     new[] { new KeyValuePair<string, EdmType>("p1", enumType) },
                     new EdmType[] { enumType },
@@ -106,7 +106,7 @@ namespace CodeFirstStoreFunctions
                     "dbo",
                     isComposable: true);
 
-            var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionImport);
+            var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionDescriptor);
 
             Assert.Equal(
                 BuiltInTypeKind.CollectionType,
@@ -131,8 +131,8 @@ namespace CodeFirstStoreFunctions
             var model = new DbModelBuilder()
                     .Build(new DbProviderInfo("System.Data.SqlClient", "2012"));
 
-            var functionImport =
-                new FunctionImport(
+            var functionDescriptor =
+                new FunctionDescriptor(
                     "f",
                     new[] { 
                         new KeyValuePair<string, EdmType>(
@@ -141,7 +141,7 @@ namespace CodeFirstStoreFunctions
                     new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
                     "ResultCol", "dbo", isComposable: true);
 
-            var storeFunction = new StoreFunctionBuilder(model, "docs").Create(functionImport);
+            var storeFunction = new StoreFunctionBuilder(model, "docs").Create(functionDescriptor);
 
             Assert.Equal("CodeFirstDatabaseSchema", storeFunction.NamespaceName);
         }

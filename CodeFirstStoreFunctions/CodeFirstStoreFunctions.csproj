@@ -78,7 +78,7 @@
     <Compile Include="FunctionsConvention`1.cs" />
     <Compile Include="DbFunctionDetailsAttribute.cs" />
     <Compile Include="FunctionDiscovery.cs" />
-    <Compile Include="FunctionImport.cs" />
+    <Compile Include="FunctionDescriptor.cs" />
     <Compile Include="FunctionsConvention.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StoreFunctionBuilder.cs" />

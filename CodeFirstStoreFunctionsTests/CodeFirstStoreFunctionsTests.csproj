@@ -61,7 +61,7 @@
     <Compile Include="DbFunctionDetailsAttributeTests.cs" />
     <Compile Include="E2ETests.cs" />
     <Compile Include="FunctionDiscoveryTests.cs" />
-    <Compile Include="FunctionImportTests.cs" />
+    <Compile Include="FunctionDescriptorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StoreFunctionBuilderTests.cs" />
   </ItemGroup>

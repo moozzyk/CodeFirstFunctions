@@ -23,13 +23,13 @@ namespace CodeFirstStoreFunctions
 
         public void Apply(EntityContainer item, DbModel model)
         {
-            var functionImports = new FunctionDiscovery(model, _methodClassType).FindFunctionImports();
+            var functionDescriptors = new FunctionDiscovery(model, _methodClassType).FindFunctions();
             var storeFunctionBuilder = new StoreFunctionBuilder(model, _defaultSchema);
 
-            foreach (var functionImport in functionImports)
+            foreach (var functionDescriptor in functionDescriptors)
             {
-                var functionImportDefinition = CreateFunctionImport(model, functionImport);
-                var storeFunctionDefinition = storeFunctionBuilder.Create(functionImport);
+                var functionImportDefinition = CreateFunctionImport(model, functionDescriptor);
+                var storeFunctionDefinition = storeFunctionBuilder.Create(functionDescriptor);
                 model.ConceptualModel.Container.AddFunctionImport(functionImportDefinition);
                 model.StoreModel.AddItem(storeFunctionDefinition);
 
@@ -56,7 +56,7 @@ namespace CodeFirstStoreFunctions
             // TODO: scalar functions?, model defined functions?
         }
 
-        private static EdmFunction CreateFunctionImport(DbModel model, FunctionImport functionImport)
+        private static EdmFunction CreateFunctionImport(DbModel model, FunctionDescriptor functionImport)
         {
             EntitySet[] entitySets;
             FunctionParameter[] returnParameters;
@@ -84,7 +84,7 @@ namespace CodeFirstStoreFunctions
                 null);
         }
 
-        private static void CreateReturnParameters(DbModel model, FunctionImport functionImport,
+        private static void CreateReturnParameters(DbModel model, FunctionDescriptor functionImport,
             out FunctionParameter[] returnParameters, out EntitySet[] entitySets)
         {
             var resultCount = functionImport.ReturnTypes.Count();

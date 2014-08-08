@@ -7,7 +7,7 @@ namespace CodeFirstStoreFunctions
     using System.Diagnostics;
     using System.Linq;
 
-    internal class FunctionImport
+    internal class FunctionDescriptor
     {
         private readonly string _name;
         private readonly EdmType[] _returnTypes;
@@ -16,7 +16,7 @@ namespace CodeFirstStoreFunctions
         private readonly string _databaseSchema;
         private readonly bool _isComposable;
 
-        public FunctionImport(string name, IEnumerable<KeyValuePair<string, EdmType>> parameters, 
+        public FunctionDescriptor(string name, IEnumerable<KeyValuePair<string, EdmType>> parameters, 
             EdmType[] returnTypes, string resultColumnName, string databaseSchema, bool isComposable)
       {
             Debug.Assert(!string.IsNullOrWhiteSpace(name), "invalid name");
