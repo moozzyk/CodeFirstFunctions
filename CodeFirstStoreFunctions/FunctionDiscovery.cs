@@ -17,7 +17,6 @@ namespace CodeFirstStoreFunctions
     {
         private readonly DbModel _model;
         private readonly Type _type;
-        private readonly bool _isStaticClass;
 
         public FunctionDiscovery(DbModel model, Type type)
         {
@@ -26,22 +25,13 @@ namespace CodeFirstStoreFunctions
 
             _model = model;
             _type = type;
-            _isStaticClass = type.IsAbstract && type.IsSealed;
         }
 
         public IEnumerable<FunctionDescriptor> FindFunctions()
         {
-            var bindingFlags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.InvokeMethod;
-            if (_isStaticClass)
-            {
-                bindingFlags |= BindingFlags.Static;
-            }
-            else
-            {
-                bindingFlags |= BindingFlags.Instance;
-            }
-
-            bindingFlags |= BindingFlags.Static;
+            var bindingFlags = 
+                BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.InvokeMethod | 
+                BindingFlags.Static | BindingFlags.Instance;
 
             foreach (var method in _type.GetMethods(bindingFlags))
             {
@@ -103,7 +93,7 @@ namespace CodeFirstStoreFunctions
             // TODO: Output parameters?
             foreach (var parameter in method.GetParameters())
             {
-                if (_isStaticClass && method.IsDefined(typeof(ExtensionAttribute), false) && parameter.Position == 0)
+                if (method.IsDefined(typeof(ExtensionAttribute), false) && parameter.Position == 0)
                 {
                     continue;
                 }
