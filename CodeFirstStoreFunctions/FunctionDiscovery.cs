@@ -50,8 +50,8 @@ namespace CodeFirstStoreFunctions
                 ? method.ReturnType.GetGenericTypeDefinition()
                 : null;
             
-            if(functionAttribute != null ||                             //TVF or scalar UDF
-               returnGenericTypeDefinition == typeof (ObjectResult<>))  // StoredProc
+            if(functionAttribute != null ||                             // TVF, scalar UDF or StoreProc
+               returnGenericTypeDefinition == typeof (ObjectResult<>))  // StoredProc without DbFunction attribute
             {
                 var functionDetailsAttr = 
                     Attribute.GetCustomAttribute(method, typeof(DbFunctionDetailsAttribute)) as DbFunctionDetailsAttribute;

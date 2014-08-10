@@ -160,7 +160,8 @@ namespace CodeFirstStoreFunctions
                     string.Format("[{0}].{1}", GetType().Name, "[MyCustomTVF]()"));            
         }
 
-        public virtual ObjectResult<byte> GetUniqueTerminalCountSP()
+        [DbFunction("MyContext", "GetUniqueTerminalCountSP")]
+        public virtual ObjectResult<byte> GetUniqueTerminalCountSProc()
         {
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<byte>("GetUniqueTerminalCountSP");
         }
@@ -575,7 +576,7 @@ namespace CodeFirstStoreFunctions
         {
             using (var ctx = new MyContext())
             {
-                var result = ctx.GetUniqueTerminalCountSP().ToList();
+                var result = ctx.GetUniqueTerminalCountSProc().ToList();
                 Assert.Equal(new byte[] { 1, 2, 5 }, result.ToArray());
             }
         }
