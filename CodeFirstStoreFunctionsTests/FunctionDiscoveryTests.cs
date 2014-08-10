@@ -103,6 +103,32 @@ namespace CodeFirstStoreFunctions
                     throw new NotImplementedException();
                 }
 
+                public ObjectResult<TestComplexType> StoredProcWithObjectParamater(
+                    [ParameterType(typeof(TestEnumType?))] ObjectParameter param)
+                {
+                    throw new NotImplementedException();
+                }
+
+                public ObjectResult<TestComplexType> StoredProcWithObjectParamaterAndNonEdmType(
+                    [ParameterType(typeof(ushort))] ObjectParameter param)
+                {
+                    throw new NotImplementedException();
+                }
+
+                public ObjectResult<TestComplexType> StoredProcWithObjectParamaterAndNoParameterTypeAttribute(ObjectParameter param)
+                {
+                    throw new NotImplementedException();
+                }
+
+                public ObjectResult<TestComplexType> StoredProcWithRefParam(ref int param)
+                {
+                    throw new NotImplementedException();
+                }
+
+                public ObjectResult<TestComplexType> StoredProcWithOutParam(out int param)
+                {
+                    throw new NotImplementedException();
+                }
 
                 [DbFunctionDetails(ResultTypes = new Type[0])]
                 public ObjectResult<int> EmptyResultType()
@@ -146,6 +172,12 @@ namespace CodeFirstStoreFunctions
                     throw new NotImplementedException();
                 }
 
+                [DbFunction("CodeFirstDatabaseSchema", "UdfNonPrimitiveParam")]
+                public static int UdfWithNonPrimitiveParam(TestEnumType param)
+                {
+                    throw new NotImplementedException();
+                }
+
                 public class TestEntityType
                 {
                     public int Id { get; set; }
@@ -169,8 +201,6 @@ namespace CodeFirstStoreFunctions
                 // missing schema
                 // missing result column name for scalars
                 // result column for non-scalars
-                // function attribute on non IQueryable
-                // out parameters
             }
 
             [Fact]
@@ -296,7 +326,7 @@ namespace CodeFirstStoreFunctions
             }
 
             [Fact]
-            public void FindFunctions_creates_function_descriptors_returning_complex_types_non_composable()
+            public void FindFunctions_creates_function_descriptors_for_functions_returning_complex_types_non_composable()
             {
                 var model = CreateModel();
                 model.ConceptualModel.AddItem(CreateComplexType());
@@ -430,8 +460,8 @@ namespace CodeFirstStoreFunctions
                 Assert.NotNull(functionDescriptor);
                 Assert.Equal("ExtensionMethod", functionDescriptor.Name);
                 Assert.Equal(1, functionDescriptor.Parameters.Count());
-                Assert.Equal("param", functionDescriptor.Parameters.First().Key);
-                Assert.Equal("Edm.String", functionDescriptor.Parameters.First().Value.FullName);
+                Assert.Equal("param", functionDescriptor.Parameters.First().Name);
+                Assert.Equal("Edm.String", functionDescriptor.Parameters.First().EdmType.FullName);
                 Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
                 Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
             }
@@ -455,8 +485,8 @@ namespace CodeFirstStoreFunctions
                 Assert.NotNull(functionDescriptor);
                 Assert.Equal("StaticMethod", functionDescriptor.Name);
                 Assert.Equal(1, functionDescriptor.Parameters.Count());
-                Assert.Equal("param", functionDescriptor.Parameters.First().Key);
-                Assert.Equal("Edm.String", functionDescriptor.Parameters.First().Value.FullName);
+                Assert.Equal("param", functionDescriptor.Parameters.First().Name);
+                Assert.Equal("Edm.String", functionDescriptor.Parameters.First().EdmType.FullName);
                 Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
                 Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
             }
@@ -475,8 +505,8 @@ namespace CodeFirstStoreFunctions
 
                 Assert.NotNull(functionDescriptor);
                 Assert.Equal(1, functionDescriptor.Parameters.Count());
-                Assert.Equal("param", functionDescriptor.Parameters.First().Key);
-                Assert.Equal("Edm.String", functionDescriptor.Parameters.First().Value.FullName);
+                Assert.Equal("param", functionDescriptor.Parameters.First().Name);
+                Assert.Equal("Edm.String", functionDescriptor.Parameters.First().EdmType.FullName);
                 Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
                 Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.ScalarUserDefinedFunction);
             }
@@ -542,7 +572,7 @@ namespace CodeFirstStoreFunctions
             }
 
             [Fact]
-            public void FindFunctions_throws_if_udf_not_in_UdfNotInCodeFirstDatabaseSchema_namespace()
+            public void FindFunctions_throws_if_udf_not_in_CodeFirstDatabaseSchema_namespace()
             {
                 var mockType = new Mock<Type>();
                 mockType
@@ -556,6 +586,142 @@ namespace CodeFirstStoreFunctions
 
                 Assert.Contains("'DbFunction'", message);
                 Assert.Contains("'CodeFirstDatabaseSchema'", message);                
+            }
+
+            [Fact]
+            public void FindFunctions_throws_for_udfs_with_non_primitive_params()
+            {
+                var model = CreateModel();
+                model.ConceptualModel.AddItem(CreateEnumType());
+
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(new[] { typeof(Fake).GetMethod("UdfWithNonPrimitiveParam") });
+
+                var message =
+                    Assert.Throws<InvalidOperationException>(() =>
+                        new FunctionDiscovery(model, mockType.Object)
+                            .FindFunctions().ToList()).Message;
+
+                Assert.Contains("'Model.TestEnumType'", message);
+                Assert.Contains("'param'", message);                
+            }
+
+            [Fact]
+            public void FindFunctions_throws_for_out_params()
+            {
+                var model = CreateModel();
+                model.ConceptualModel.AddItem(CreateComplexType());
+
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(new[] { typeof(Fake).GetMethod("StoredProcWithOutParam") });
+
+                var message =
+                    Assert.Throws<InvalidOperationException>(() =>
+                        new FunctionDiscovery(model, mockType.Object)
+                            .FindFunctions().ToList()).Message;
+
+                Assert.Contains("out", message);
+                Assert.Contains("ref", message);
+                Assert.Contains("Input/Output", message);
+                Assert.Contains("'param'", message);
+                Assert.Contains("'ObjectParameter'", message);
+            }
+
+            [Fact]
+            public void FindFunctions_throws_for_ref_params()
+            {
+                var model = CreateModel();
+                model.ConceptualModel.AddItem(CreateComplexType());
+
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(new[] { typeof(Fake).GetMethod("StoredProcWithRefParam") });
+
+                var message =
+                    Assert.Throws<InvalidOperationException>(() =>
+                        new FunctionDiscovery(model, mockType.Object)
+                            .FindFunctions().ToList()).Message;
+
+                Assert.Contains("out", message);
+                Assert.Contains("ref", message);
+                Assert.Contains("Input/Output", message);
+                Assert.Contains("'param'", message);
+                Assert.Contains("'ObjectParameter'", message);
+            }
+
+            [Fact]
+            public void FindFunctions_creates_function_descriptors_for_functions_taking_ObjectParameter_non_composable()
+            {
+                var model = CreateModel();
+                model.ConceptualModel.AddItem(CreateComplexType());
+                model.ConceptualModel.AddItem(CreateEnumType());
+
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(typeof(Fake)
+                        .GetMethods()
+                        .Where(m => m.Name == "StoredProcWithObjectParamater")
+                        .ToArray());
+
+                var functionDescriptor =
+                    new FunctionDiscovery(model, mockType.Object)
+                        .FindFunctions().SingleOrDefault();
+
+                Assert.NotNull(functionDescriptor);
+                Assert.Equal("StoredProcWithObjectParamater", functionDescriptor.Name);
+
+                var param = functionDescriptor.Parameters.SingleOrDefault();
+                Assert.NotNull(param);
+                Assert.Equal("param", param.Name);
+                Assert.Equal("Model.TestEnumType", param.EdmType.FullName);
+                Assert.True(param.IsOutParam);
+            }
+
+            [Fact]
+            public void FindFunctions_throws_if_no_Edm_type_for_ParameterTypeAttribute_type()
+            {
+                var model = CreateModel();
+                model.ConceptualModel.AddItem(CreateComplexType());
+
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(new[] { typeof(Fake).GetMethod("StoredProcWithObjectParamaterAndNonEdmType") });
+
+                var message =
+                    Assert.Throws<InvalidOperationException>(() =>
+                        new FunctionDiscovery(model, mockType.Object)
+                            .FindFunctions().ToList()).Message;
+
+                Assert.Contains("EdmType", message);
+                Assert.Contains("System.UInt16", message);
+            }
+
+            [Fact]
+            public void FindFunctions_throws_if_no_ParameterTypeAttribute_for_ObjectParameter()
+            {
+                var model = CreateModel();
+                model.ConceptualModel.AddItem(CreateComplexType());
+
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(new[] { typeof(Fake).GetMethod("StoredProcWithObjectParamaterAndNoParameterTypeAttribute") });
+
+                var message =
+                    Assert.Throws<InvalidOperationException>(() =>
+                        new FunctionDiscovery(model, mockType.Object)
+                            .FindFunctions().ToList()).Message;
+
+                Assert.Contains("ParameterTypeAttribute", message);
+                Assert.Contains("ObjectParameter", message);
+                Assert.Contains("'param'", message);
             }
 
             private static DbModel CreateModel()

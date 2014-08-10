@@ -199,7 +199,15 @@ namespace CodeFirstStoreFunctions
             ResultTypes = new[] {typeof (Airport_ResultType), typeof (Airport), typeof (Aircraft), typeof (int)})]
         public virtual ObjectResult<Airport_ResultType> MultipleResultSets()
         {
-            return ((IObjectContextAdapter) this).ObjectContext.ExecuteFunction<Airport_ResultType>("MultipleResultSets");
+            return ((IObjectContextAdapter) this).ObjectContext
+                .ExecuteFunction<Airport_ResultType>("MultipleResultSets");
+        }
+
+        public ObjectResult<AirportType> GetAirportTypesWithOutputParameter(
+            [ParameterType(typeof(AirportType?))] ObjectParameter airportType)
+        {
+            return ((IObjectContextAdapter)this).ObjectContext
+                .ExecuteFunction<AirportType>("GetAirportTypesWithOutputParameter", airportType);
         }
 
         [DbFunction("CodeFirstDatabaseSchema", "EchoNumber")]
@@ -397,6 +405,14 @@ namespace CodeFirstStoreFunctions
                 "FROM [dbo].[Vehicles] " +
                 "WHERE [Discriminator] = N'Aircraft' " +
                 "SELECT 42 AS [Answer]");
+
+            context.Database.ExecuteSqlCommand(
+                "CREATE PROCEDURE [dbo].[GetAirportTypesWithOutputParameter] @AirportType int out AS " +
+                "SELECT @AirportType = Max([Type]) " +
+                "FROM [dbo].[Airports] " +
+                "SELECT DISTINCT [Type] " +
+                "FROM [dbo].[Airports] " +
+                "WHERE [Type] = @AirportType");
 
             context.Database.ExecuteSqlCommand(
                 "CREATE FUNCTION [dbo].[MyCustomTVF]()" +
@@ -628,6 +644,19 @@ namespace CodeFirstStoreFunctions
 
                 var fourthResultSet = thirdResultSet.GetNextResult<int>();
                 Assert.Equal(new[] { 42 }, fourthResultSet.ToList());
+            }
+        }
+
+        [Fact]
+        public void Can_invoke_stored_proc_with_out_parameter()
+        {
+            using (var ctx = new MyContext())
+            {
+                var airportTypeParameter = new ObjectParameter("AirportType", typeof (AirportType?));
+                var results = ctx.GetAirportTypesWithOutputParameter(airportTypeParameter);
+
+                Assert.Equal(1, results.ToList().Count);
+                Assert.Equal(AirportType.International, airportTypeParameter.Value);
             }
         }
 

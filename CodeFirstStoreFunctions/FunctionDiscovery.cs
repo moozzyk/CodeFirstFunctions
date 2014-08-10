@@ -29,8 +29,8 @@ namespace CodeFirstStoreFunctions
 
         public IEnumerable<FunctionDescriptor> FindFunctions()
         {
-            var bindingFlags = 
-                BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.InvokeMethod | 
+            const BindingFlags bindingFlags =
+                BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.InvokeMethod |
                 BindingFlags.Static | BindingFlags.Instance;
 
             foreach (var method in _type.GetMethods(bindingFlags))
@@ -76,7 +76,7 @@ namespace CodeFirstStoreFunctions
 
                 return new FunctionDescriptor(
                     (functionAttribute != null ? functionAttribute.FunctionName : null) ?? method.Name,
-                    GetParameters(method),
+                    GetParameters(method, storeFunctionKind),
                     GetReturnTypes(method.Name, unwrapperReturnType, functionDetailsAttr, storeFunctionKind),
                     functionDetailsAttr != null ? functionDetailsAttr.ResultColumnName : null,
                     functionDetailsAttr != null ? functionDetailsAttr.DatabaseSchema : null,
@@ -86,11 +86,10 @@ namespace CodeFirstStoreFunctions
             return null;
         }
 
-        private IEnumerable<KeyValuePair<string, EdmType>> GetParameters(MethodInfo method)
+        private IEnumerable<ParameterDescriptor> GetParameters(MethodInfo method, StoreFunctionKind storeFunctionKind)
         {
             Debug.Assert(method != null, "method is null");
 
-            // TODO: Output parameters?
             foreach (var parameter in method.GetParameters())
             {
                 if (method.IsDefined(typeof(ExtensionAttribute), false) && parameter.Position == 0)
@@ -98,8 +97,33 @@ namespace CodeFirstStoreFunctions
                     continue;
                 }
 
-                var unwrappedParameterType =
-                    Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
+                if (parameter.IsOut || parameter.ParameterType.IsByRef)
+                {
+                    throw new InvalidOperationException(
+                        string.Format(
+                            "The parameter '{0}' is an out or ref parameter. To map Input/Output database parameters use the 'ObjectParameter' as the parameter type.",
+                            parameter.Name));
+                }
+
+                var parameterType = parameter.ParameterType;
+
+                var isObjectParameter = parameter.ParameterType == typeof (ObjectParameter);
+                if (isObjectParameter)
+                {
+                    var paramType = (ParameterTypeAttribute)Attribute.GetCustomAttribute(parameter, typeof (ParameterTypeAttribute));
+                    
+                    if (paramType == null)
+                    {
+                        throw new InvalidOperationException(
+                            string.Format(
+                                "Cannot infer type for parameter '{0}'. All ObjectParameter parameters must be decorated with the ParameterTypeAttribute.",
+                                parameter.Name));    
+                    }
+
+                    parameterType = paramType.Type;
+                }
+
+                var unwrappedParameterType = Nullable.GetUnderlyingType(parameterType) ?? parameterType;
 
                 var parameterEdmType =
                     unwrappedParameterType.IsEnum
@@ -108,14 +132,23 @@ namespace CodeFirstStoreFunctions
 
                 if (parameterEdmType == null)
                 {
-                    throw 
+                    throw
                         new InvalidOperationException(
                             string.Format(
-                            "The type '{0}' of the parameter '{1}' of function '{2}' is invalid. Parameters can only be of a type that can be converted to an Edm scalar type",
-                            unwrappedParameterType.FullName, parameter.Name, method.Name));
+                                "The type '{0}' of the parameter '{1}' of function '{2}' is invalid. Parameters can only be of a type that can be converted to an Edm scalar type",
+                                unwrappedParameterType.FullName, parameter.Name, method.Name));
                 }
 
-                yield return new KeyValuePair<string, EdmType>(parameter.Name, parameterEdmType);
+                if (storeFunctionKind == StoreFunctionKind.ScalarUserDefinedFunction &&
+                    parameterEdmType.BuiltInTypeKind != BuiltInTypeKind.PrimitiveType)
+                {
+                    throw new InvalidOperationException(
+                        string.Format(
+                            "The parameter '{0}' is of the '{1}' type which is not an Edm primitive type. Types of parameters of store scalar functions must be Edm primitive types.",
+                            parameter.Name, parameterEdmType));
+                }
+
+                yield return new ParameterDescriptor(parameter.Name, parameterEdmType, isObjectParameter);
             }
         }
 

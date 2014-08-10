@@ -46,12 +46,14 @@ namespace CodeFirstStoreFunctions
                         .Parameters
                         .Select(
                             p => FunctionParameter.Create(
-                                p.Key, 
+                                p.Name, 
                                 GetStorePrimitiveType(
-                                    p.Value.BuiltInTypeKind == BuiltInTypeKind.EnumType 
-                                        ? ((EnumType)p.Value).UnderlyingType 
-                                        : p.Value), 
-                                ParameterMode.In)).ToArray(),
+                                    p.EdmType.BuiltInTypeKind == BuiltInTypeKind.EnumType 
+                                        ? ((EnumType)p.EdmType).UnderlyingType 
+                                        : p.EdmType), 
+                                p.IsOutParam 
+                                    ? ParameterMode.InOut 
+                                    : ParameterMode.In)).ToArray(),
 
                     ReturnParameters = CreateFunctionReturnParameters(functionDescriptor),
                     IsComposable = functionDescriptor.StoreFunctionKind != StoreFunctionKind.StoredProcedure,

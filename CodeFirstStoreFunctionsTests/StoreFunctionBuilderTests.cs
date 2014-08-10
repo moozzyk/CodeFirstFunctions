@@ -2,7 +2,6 @@
 
 namespace CodeFirstStoreFunctions
 {
-    using System.Collections.Generic;
     using System.Data.Entity;
     using System.Data.Entity.Core.Metadata.Edm;
     using System.Data.Entity.Infrastructure;
@@ -23,8 +22,8 @@ namespace CodeFirstStoreFunctions
                 new FunctionDescriptor(
                     "f",
                     new[] { 
-                        new KeyValuePair<string, EdmType>(
-                            "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String)) 
+                        new ParameterDescriptor(
+                            "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), false),  
                     },
                     new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
                     "ResultCol", "dbo", StoreFunctionKind.TableValuedFunction);
@@ -45,6 +44,7 @@ namespace CodeFirstStoreFunctions
             Assert.Equal(1, storeFunction.Parameters.Count);
             Assert.Equal("p1", storeFunction.Parameters[0].Name);    
             Assert.Equal("nvarchar(max)", storeFunction.Parameters[0].TypeName);
+            Assert.Equal(ParameterMode.In, storeFunction.Parameters[0].Mode);
             Assert.True(storeFunction.IsComposableAttribute);
         }
 
@@ -67,11 +67,9 @@ namespace CodeFirstStoreFunctions
             var functionDescriptor =
                 new FunctionDescriptor(
                     "f",
-                    new[] { 
-                        new KeyValuePair<string, EdmType>(
-                            "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String)) 
-                    },
-                    new EdmType[] { complexType },
+                    new[]
+                    {new ParameterDescriptor("p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), false)},
+                    new EdmType[] {complexType},
                     "ResultCol",
                     "dbo",
                     StoreFunctionKind.StoredProcedure);
@@ -83,6 +81,7 @@ namespace CodeFirstStoreFunctions
             Assert.Equal(1, storeFunction.Parameters.Count);
             Assert.Equal("p1", storeFunction.Parameters[0].Name);
             Assert.Equal("nvarchar(max)", storeFunction.Parameters[0].TypeName);
+            Assert.Equal(ParameterMode.In, storeFunction.Parameters[0].Mode);
             Assert.False(storeFunction.IsComposableAttribute);
         }
 
@@ -100,7 +99,7 @@ namespace CodeFirstStoreFunctions
             var functionDescriptor =
                 new FunctionDescriptor(
                     "f",
-                    new[] { new KeyValuePair<string, EdmType>("p1", enumType) },
+                    new[] { new ParameterDescriptor("p1", enumType, false) },
                     new EdmType[] { enumType },
                     "ResultCol",
                     "dbo",
@@ -122,7 +121,33 @@ namespace CodeFirstStoreFunctions
             Assert.Equal(1, storeFunction.Parameters.Count);
             Assert.Equal("p1", storeFunction.Parameters[0].Name);
             Assert.Equal("int", storeFunction.Parameters[0].TypeName);
+            Assert.Equal(ParameterMode.In, storeFunction.Parameters[0].Mode);
             Assert.True(storeFunction.IsComposableAttribute);
+        }
+
+        [Fact]
+        public void Crate_can_create_out_params()
+        {
+            var model = new DbModelBuilder()
+                .Build(new DbProviderInfo("System.Data.SqlClient", "2012"));
+
+            var functionDescriptor =
+                new FunctionDescriptor(
+                    "f",
+                    new[] { 
+                        new ParameterDescriptor(
+                            "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), true),  
+                    },
+                    new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
+                    "ResultCol", "dbo", StoreFunctionKind.StoredProcedure);
+
+            var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionDescriptor);
+
+            Assert.Equal(1, storeFunction.Parameters.Count);
+            Assert.Equal("p1", storeFunction.Parameters[0].Name);
+            Assert.Equal("nvarchar(max)", storeFunction.Parameters[0].TypeName);
+            Assert.Equal(ParameterMode.InOut, storeFunction.Parameters[0].Mode);
+            Assert.False(storeFunction.IsComposableAttribute);
         }
 
         [Fact]
@@ -134,11 +159,9 @@ namespace CodeFirstStoreFunctions
             var functionDescriptor =
                 new FunctionDescriptor(
                     "f",
-                    new[] { 
-                        new KeyValuePair<string, EdmType>(
-                            "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String)) 
-                    },
-                    new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
+                    new[]
+                    {new ParameterDescriptor("p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), false)},
+                    new EdmType[] {PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64)},
                     "ResultCol", "dbo", StoreFunctionKind.TableValuedFunction);
 
             var storeFunction = new StoreFunctionBuilder(model, "docs").Create(functionDescriptor);

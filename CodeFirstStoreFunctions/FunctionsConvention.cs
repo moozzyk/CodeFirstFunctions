@@ -72,7 +72,9 @@ namespace CodeFirstStoreFunctions
                     Parameters =
                         functionImport
                             .Parameters
-                            .Select(p => FunctionParameter.Create(p.Key, p.Value, ParameterMode.In))
+                            .Select(
+                                p => FunctionParameter.Create(p.Name, p.EdmType,
+                                        p.IsOutParam ? ParameterMode.InOut : ParameterMode.In))
                             .ToList(),
                     ReturnParameters = returnParameters,
                     IsComposable = functionImport.StoreFunctionKind == StoreFunctionKind.TableValuedFunction,

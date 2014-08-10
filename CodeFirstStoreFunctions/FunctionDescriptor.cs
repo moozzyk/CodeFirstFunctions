@@ -11,17 +11,17 @@ namespace CodeFirstStoreFunctions
     {
         private readonly string _name;
         private readonly EdmType[] _returnTypes;
-        private readonly KeyValuePair<string, EdmType>[] _parameters;
+        private readonly ParameterDescriptor[] _parameters;
         private readonly string _resultColumnName;
         private readonly string _databaseSchema;
         private readonly StoreFunctionKind _storeFunctionKind;
 
-        public FunctionDescriptor(string name, IEnumerable<KeyValuePair<string, EdmType>> parameters,
+        public FunctionDescriptor(string name, IEnumerable<ParameterDescriptor> parameters,
             EdmType[] returnTypes, string resultColumnName, string databaseSchema, StoreFunctionKind storeFunctionKind)
       {
             Debug.Assert(!string.IsNullOrWhiteSpace(name), "invalid name");
             Debug.Assert(parameters != null, "parameters is null");
-            Debug.Assert(parameters.All(p => p.Value != null), "invalid parameter type");
+            Debug.Assert(parameters.All(p => p.EdmType != null), "invalid parameter type");
             Debug.Assert(returnTypes != null && returnTypes.Length > 0, "returnTypes array is null or empty");
             Debug.Assert(storeFunctionKind == StoreFunctionKind.StoredProcedure|| returnTypes.Length == 1, "multiple return types for non-sproc");
 
@@ -43,7 +43,7 @@ namespace CodeFirstStoreFunctions
             get { return _returnTypes; } 
         }
 
-        public IEnumerable<KeyValuePair<string, EdmType>> Parameters
+        public IEnumerable<ParameterDescriptor> Parameters
         {
             get { return _parameters; }
         }

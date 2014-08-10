@@ -15,8 +15,8 @@ namespace CodeFirstStoreFunctions
             var parameters =
                 new[] 
                 { 
-                    new KeyValuePair<string, EdmType>("p1", edmType),
-                    new KeyValuePair<string, EdmType>("p2", edmType),
+                    new ParameterDescriptor("p1", edmType, false), 
+                    new ParameterDescriptor("p2", edmType, false), 
                 };
 
             var functionDescriptor =
