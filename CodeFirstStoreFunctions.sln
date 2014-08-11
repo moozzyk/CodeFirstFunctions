@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeFirstStoreFunctions", "CodeFirstStoreFunctions\CodeFirstStoreFunctions.csproj", "{6912CA14-D068-4131-97A5-053530B4F58D}"
 EndProject
@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{36005D
 		.nuget\NuGet.exe = .nuget\NuGet.exe
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeFirstFunctionsSamples", "CodeFirstStoreFunctionsSamples\CodeFirstFunctionsSamples.csproj", "{00E1C73F-E7D5-4811-8C1A-57B390C2DB19}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,6 +30,10 @@ Global
 		{D5570D23-4D7B-4508-9941-E4CAC960A12F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5570D23-4D7B-4508-9941-E4CAC960A12F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5570D23-4D7B-4508-9941-E4CAC960A12F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00E1C73F-E7D5-4811-8C1A-57B390C2DB19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00E1C73F-E7D5-4811-8C1A-57B390C2DB19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00E1C73F-E7D5-4811-8C1A-57B390C2DB19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00E1C73F-E7D5-4811-8C1A-57B390C2DB19}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
