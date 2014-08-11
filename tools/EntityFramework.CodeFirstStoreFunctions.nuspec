@@ -11,10 +11,10 @@
     <iconUrl>http://download.codeplex.com/Project/Download/FileDownload.aspx?....</iconUrl>
     -->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Support for store functions (table valued functions and stored procedures) for Entity Framework 6.1+ Code First.</description>
-    <summary>Support for store functions (table valued functions and stored procedures) for Entity Framework 6.1+ Code First.</summary>
+    <description>Support for store functions (table valued functions, scalar user defined functions and stored procedures) for Entity Framework 6.1+ Code First.</description>
+    <summary>Support for store functions (table valued functions, scalar user defined functions and stored procedures) for Entity Framework 6.1+ Code First.</summary>
     <language>en-US</language>
-    <tags>EF6 EF6.1 EF Entity Framework Entity-Framework EntityFramework 6.1 Store Functions TVFs TVF table valued functions stored procedure sprocs stored proc scalar functions Code First CodeFirst moozzyk blog.3d-logic.com</tags>
+    <tags>EF6 EF6.1 EF Entity Framework Entity-Framework EntityFramework 6.1 Store Functions TVFs TVF table valued functions stored procedure sprocs stored proc scalar functions UDF UDFs user defined functions Code First CodeFirst moozzyk blog.3d-logic.com</tags>
     
     <dependencies>
       <dependency id="EntityFramework" version="[6.1.0,7.0)" />
