@@ -15,11 +15,16 @@ namespace CodeFirstStoreFunctions
         }
 
         [Fact]
-        public void ParameterTypeAttribute_throws_for_null_type()
+        public void Can_get_set_Type_property()
         {
-            Assert.Equal("type", 
-                Assert.Throws<ArgumentNullException>(
-                    () => new ParameterTypeAttribute(null)).ParamName);
+            Assert.Same(typeof(object), new ParameterTypeAttribute { Type = typeof(object)}.Type);
         }
+
+        [Fact]
+        public void Can_get_set_StoreType_property()
+        {
+            Assert.Equal("abc", new ParameterTypeAttribute { StoreType = "abc" }.StoreType);
+        }
+
     }
 }

@@ -47,10 +47,7 @@ namespace CodeFirstStoreFunctions
                         .Select(
                             p => FunctionParameter.Create(
                                 p.Name, 
-                                GetStorePrimitiveType(
-                                    p.EdmType.BuiltInTypeKind == BuiltInTypeKind.EnumType 
-                                        ? ((EnumType)p.EdmType).UnderlyingType 
-                                        : p.EdmType), 
+                                GetStorePrimitiveType(p),
                                 p.IsOutParam 
                                     ? ParameterMode.InOut 
                                     : ParameterMode.In)).ToArray(),
@@ -181,6 +178,30 @@ namespace CodeFirstStoreFunctions
 
             return _model.ProviderManifest.GetStoreType(typeUsage);
         }
+
+        private EdmType GetStorePrimitiveType(ParameterDescriptor parameterDescriptor)
+        {
+            if (parameterDescriptor.StoreType != null)
+            {
+                var type =
+                    _model.ProviderManifest.GetStoreTypes()
+                        .SingleOrDefault(t => t.Name == parameterDescriptor.StoreType);
+
+                if (type == null)
+                {
+                    throw new InvalidOperationException(string.Format(
+                        "No store EdmType with the name '{0}' could be found.", parameterDescriptor.StoreType));
+                }
+
+                return type;
+            }
+
+            return GetStorePrimitiveType(
+                parameterDescriptor.EdmType.BuiltInTypeKind == BuiltInTypeKind.EnumType
+                    ? ((EnumType) parameterDescriptor.EdmType).UnderlyingType
+                    : parameterDescriptor.EdmType);
+        }
+
         private EdmType GetStorePrimitiveType(EdmType edmType)
         {
             Debug.Assert(edmType != null, "edmType is null");

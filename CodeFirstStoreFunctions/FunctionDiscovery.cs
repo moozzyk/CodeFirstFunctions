@@ -105,14 +105,16 @@ namespace CodeFirstStoreFunctions
                             parameter.Name));
                 }
 
+                var paramTypeAttribute =
+                    (ParameterTypeAttribute)Attribute.GetCustomAttribute(parameter, typeof(ParameterTypeAttribute));
+
                 var parameterType = parameter.ParameterType;
 
                 var isObjectParameter = parameter.ParameterType == typeof (ObjectParameter);
+
                 if (isObjectParameter)
                 {
-                    var paramType = (ParameterTypeAttribute)Attribute.GetCustomAttribute(parameter, typeof (ParameterTypeAttribute));
-                    
-                    if (paramType == null)
+                    if (paramTypeAttribute == null)
                     {
                         throw new InvalidOperationException(
                             string.Format(
@@ -120,7 +122,7 @@ namespace CodeFirstStoreFunctions
                                 parameter.Name));    
                     }
 
-                    parameterType = paramType.Type;
+                    parameterType = paramTypeAttribute.Type;
                 }
 
                 var unwrappedParameterType = Nullable.GetUnderlyingType(parameterType) ?? parameterType;
@@ -148,7 +150,8 @@ namespace CodeFirstStoreFunctions
                             parameter.Name, parameterEdmType));
                 }
 
-                yield return new ParameterDescriptor(parameter.Name, parameterEdmType, isObjectParameter);
+                yield return new ParameterDescriptor(parameter.Name, parameterEdmType, 
+                    paramTypeAttribute != null ? paramTypeAttribute.StoreType : null, isObjectParameter);
             }
         }
 

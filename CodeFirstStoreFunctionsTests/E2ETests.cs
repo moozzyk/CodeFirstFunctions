@@ -216,11 +216,18 @@ namespace CodeFirstStoreFunctions
         {
             throw new NotSupportedException();
         }
+
+        [DbFunctionDetails(ResultColumnName = "Number")]
+        [DbFunction("MyContext", "GetXmlInfo")]
+        public virtual ObjectResult<int> GetXmlInfo([ParameterType(typeof(string), StoreType = "xml")] ObjectParameter xml)
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<int>("GetXmlInfo", xml);
+        }
     }
 
     #region initializer
 
-    //public class MyContextInitializer : DropCreateDatabaseIfModelChanges<MyContext>
+//    public class MyContextInitializer : DropCreateDatabaseIfModelChanges<MyContext>
     public class MyContextInitializer : DropCreateDatabaseAlways<MyContext>
     {
         protected override void Seed(MyContext context)
@@ -426,6 +433,11 @@ namespace CodeFirstStoreFunctions
                 "BEGIN  " +
                 "   RETURN @number " +
                 "END");
+
+            context.Database.ExecuteSqlCommand(
+                "CREATE PROCEDURE [dbo].[GetXmlInfo] @Xml xml out AS " +
+                "SELECT @Xml = '<output />' " +
+                "SELECT 1234 AS Number");
         }
     }
     
@@ -687,6 +699,18 @@ namespace CodeFirstStoreFunctions
                 var q = ctx.Vehicles.Where(v => v.Id == MyContext.ScalarFuncEchoNumber(v.Id));
                 Assert.Equal(expectedSql, q.ToString());
                 Assert.Equal(1, q.Count());
+            }
+        }
+
+        [Fact]
+        public void Can_set_custom_store_parameter_type()
+        {
+            using (var ctx = new MyContext())
+            {
+                var xmlParameter = new ObjectParameter("Xml", typeof(string)) {Value = "<input />"};
+                var q = ctx.GetXmlInfo(xmlParameter);
+                Assert.Equal(1234, q.ToArray().FirstOrDefault());
+                Assert.Equal("<output />", xmlParameter.Value);
             }
         }
     }

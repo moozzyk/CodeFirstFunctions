@@ -9,9 +9,10 @@ namespace CodeFirstStoreFunctions
     {
         private readonly string _name;
         private readonly EdmType _edmType;
+        private readonly string _storeType;
         private readonly bool _isOutParam;
 
-        public ParameterDescriptor(string name, EdmType edmType, bool isOutParam)
+        public ParameterDescriptor(string name, EdmType edmType, string storeType, bool isOutParam)
         {
             Debug.Assert(name != null, "name is null");
             Debug.Assert(edmType != null, "edmType is null");
@@ -19,6 +20,7 @@ namespace CodeFirstStoreFunctions
             _name = name;
             _edmType = edmType;
             _isOutParam = isOutParam;
+            _storeType = storeType;
         }
 
         public string Name
@@ -29,6 +31,11 @@ namespace CodeFirstStoreFunctions
         public EdmType EdmType
         {
             get { return _edmType; }
+        }
+
+        public string StoreType
+        {
+            get { return _storeType; }
         }
 
         public bool IsOutParam

@@ -2,6 +2,7 @@
 
 namespace CodeFirstStoreFunctions
 {
+    using System;
     using System.Data.Entity;
     using System.Data.Entity.Core.Metadata.Edm;
     using System.Data.Entity.Infrastructure;
@@ -23,7 +24,7 @@ namespace CodeFirstStoreFunctions
                     "f",
                     new[] { 
                         new ParameterDescriptor(
-                            "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), false),  
+                            "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), null, false),
                     },
                     new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
                     "ResultCol", "dbo", StoreFunctionKind.TableValuedFunction);
@@ -68,7 +69,7 @@ namespace CodeFirstStoreFunctions
                 new FunctionDescriptor(
                     "f",
                     new[]
-                    {new ParameterDescriptor("p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), false)},
+                    {new ParameterDescriptor("p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), null, false)},
                     new EdmType[] {complexType},
                     "ResultCol",
                     "dbo",
@@ -99,7 +100,7 @@ namespace CodeFirstStoreFunctions
             var functionDescriptor =
                 new FunctionDescriptor(
                     "f",
-                    new[] { new ParameterDescriptor("p1", enumType, false) },
+                    new[] { new ParameterDescriptor("p1", enumType, null, false) },
                     new EdmType[] { enumType },
                     "ResultCol",
                     "dbo",
@@ -136,7 +137,7 @@ namespace CodeFirstStoreFunctions
                     "f",
                     new[] { 
                         new ParameterDescriptor(
-                            "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), true),  
+                            "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), null, true),
                     },
                     new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
                     "ResultCol", "dbo", StoreFunctionKind.StoredProcedure);
@@ -160,13 +161,57 @@ namespace CodeFirstStoreFunctions
                 new FunctionDescriptor(
                     "f",
                     new[]
-                    {new ParameterDescriptor("p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), false)},
+                    {new ParameterDescriptor("p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), null, false)},
                     new EdmType[] {PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64)},
                     "ResultCol", "dbo", StoreFunctionKind.TableValuedFunction);
 
             var storeFunction = new StoreFunctionBuilder(model, "docs").Create(functionDescriptor);
 
             Assert.Equal("CodeFirstDatabaseSchema", storeFunction.NamespaceName);
+        }
+
+        [Fact]
+        public void Can_specify_store_type_for_parameters()
+        {
+            var model = new DbModelBuilder()
+                .Build(new DbProviderInfo("System.Data.SqlClient", "2012"));
+
+            var functionDescriptor =
+                new FunctionDescriptor(
+                    "f",
+                    new[] { 
+                        new ParameterDescriptor(
+                            "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), "xml", true),  
+                    },
+                    new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
+                    "ResultCol", "dbo", StoreFunctionKind.StoredProcedure);
+
+            var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionDescriptor);
+
+            Assert.Equal(1, storeFunction.Parameters.Count);
+            Assert.Equal("p1", storeFunction.Parameters[0].Name);
+            Assert.Equal("xml", storeFunction.Parameters[0].TypeName);
+        }
+
+        [Fact]
+        public void Exception_thrown_if_provided_store_type_invalid()
+        {
+            var model = new DbModelBuilder()
+                .Build(new DbProviderInfo("System.Data.SqlClient", "2012"));
+
+            var functionDescriptor =
+                new FunctionDescriptor(
+                    "f",
+                    new[] {
+                        new ParameterDescriptor(
+                            "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), "json", true),
+                    },
+                    new EdmType[] {PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64)},
+                    "ResultCol", "dbo", StoreFunctionKind.StoredProcedure);
+
+            Assert.Contains("'json'",
+                Assert.Throws<InvalidOperationException>(() =>
+                    new StoreFunctionBuilder(model, "docs", "ns").Create(functionDescriptor)).Message);
         }
     }
 }

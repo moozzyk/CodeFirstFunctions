@@ -15,12 +15,12 @@ namespace CodeFirstStoreFunctions
             var parameters =
                 new[] 
                 { 
-                    new ParameterDescriptor("p1", edmType, false), 
-                    new ParameterDescriptor("p2", edmType, false), 
+                    new ParameterDescriptor("p1", edmType, null, false),
+                    new ParameterDescriptor("p2", edmType, null, false),
                 };
 
             var functionDescriptor =
-                new FunctionDescriptor("Func", parameters, new EdmType[] { edmType }, 
+                new FunctionDescriptor("Func", parameters, new EdmType[] { edmType },
                     "result", "dbo", StoreFunctionKind.TableValuedFunction);
 
             Assert.Equal("Func", functionDescriptor.Name);

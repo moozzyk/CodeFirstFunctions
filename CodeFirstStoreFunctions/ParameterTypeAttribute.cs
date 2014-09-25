@@ -7,21 +7,17 @@ namespace CodeFirstStoreFunctions
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
     public class ParameterTypeAttribute : Attribute
     {
-        private readonly Type _type;
+        public ParameterTypeAttribute()
+        {
+        }
 
         public ParameterTypeAttribute(Type type)
         {
-            if (type == null)
-            {
-                throw new ArgumentNullException("type");    
-            }
-
-            _type = type;
+            Type = type;
         }
 
-        public Type Type
-        {
-            get { return _type; }
-        }
+        public Type Type { get; set; }
+
+        public string StoreType { get; set; }
     }
 }

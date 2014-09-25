@@ -12,10 +12,11 @@ namespace CodeFirstStoreFunctions
         {
             var edmType = PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Binary);
 
-            var parameterDescriptor = new ParameterDescriptor("param", edmType, true);
+            var parameterDescriptor = new ParameterDescriptor("param", edmType, "abc", true);
 
             Assert.Equal("param", parameterDescriptor.Name);
             Assert.Same(edmType, parameterDescriptor.EdmType);
+            Assert.Equal("abc", parameterDescriptor.StoreType);
             Assert.True(parameterDescriptor.IsOutParam);
         }
     }
