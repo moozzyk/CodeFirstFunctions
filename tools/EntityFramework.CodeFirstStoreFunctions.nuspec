@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>EntityFramework.CodeFirstStoreFunctions</id>
-    <version>1.0.0-beta</version>
+    <version>1.0.0</version>
     <authors>Pawel "moozzyk" Kadluczka</authors>
     <title>Support for store functions for Entity Framework 6.1.1+ Code First.</title>
     <licenseUrl>https://codefirstfunctions.codeplex.com/license</licenseUrl>
