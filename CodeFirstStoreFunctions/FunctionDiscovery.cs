@@ -80,7 +80,8 @@ namespace CodeFirstStoreFunctions
                     GetReturnTypes(method.Name, unwrapperReturnType, functionDetailsAttr, storeFunctionKind),
                     functionDetailsAttr != null ? functionDetailsAttr.ResultColumnName : null,
                     functionDetailsAttr != null ? functionDetailsAttr.DatabaseSchema : null,
-                    storeFunctionKind);
+                    storeFunctionKind,
+                    functionDetailsAttr != null ? GetBuiltInOption(functionDetailsAttr.IsBuiltIn) : null);
             }
 
             return null;
@@ -238,6 +239,18 @@ namespace CodeFirstStoreFunctions
         private EdmType FindEnumType(Type type)
         {
             return _model.ConceptualModel.EnumTypes.FirstOrDefault(t => t.Name == type.Name);
+        }
+
+        private bool? GetBuiltInOption(BuiltInOptions builtInOption)
+        {
+            if (builtInOption == BuiltInOptions.BuiltIn)
+                return true;
+            else if (builtInOption == BuiltInOptions.NotBuiltIn)
+                return false;
+            else if (builtInOption == BuiltInOptions.Unspecified)
+                return null;
+            else
+                throw new ArgumentException("invalid built in option");
         }
     }
 }

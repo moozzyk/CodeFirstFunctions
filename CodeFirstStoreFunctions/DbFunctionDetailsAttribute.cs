@@ -4,6 +4,13 @@ namespace CodeFirstStoreFunctions
 {
     using System;
 
+    public enum BuiltInOptions
+    { 
+        Unspecified,
+        BuiltIn,
+        NotBuiltIn
+    }
+
     [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
     public class DbFunctionDetailsAttribute : Attribute
     {
@@ -21,5 +28,10 @@ namespace CodeFirstStoreFunctions
         /// Gets or sets the types returned by a function mapped to a stored procedure returning multuple resultsets.
         /// </summary>
         public Type[] ResultTypes { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether the function is a built in function or not
+        /// </summary>
+        public BuiltInOptions IsBuiltIn { get; set; }
     }
 }

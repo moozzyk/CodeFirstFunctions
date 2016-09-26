@@ -15,9 +15,10 @@ namespace CodeFirstStoreFunctions
         private readonly string _resultColumnName;
         private readonly string _databaseSchema;
         private readonly StoreFunctionKind _storeFunctionKind;
+        private readonly bool? _isBuiltIn;
 
         public FunctionDescriptor(string name, IEnumerable<ParameterDescriptor> parameters,
-            EdmType[] returnTypes, string resultColumnName, string databaseSchema, StoreFunctionKind storeFunctionKind)
+            EdmType[] returnTypes, string resultColumnName, string databaseSchema, StoreFunctionKind storeFunctionKind, bool? isBuiltIn = null)
       {
             Debug.Assert(!string.IsNullOrWhiteSpace(name), "invalid name");
             Debug.Assert(parameters != null, "parameters is null");
@@ -31,6 +32,7 @@ namespace CodeFirstStoreFunctions
             _resultColumnName = resultColumnName;
             _databaseSchema = databaseSchema;
             _storeFunctionKind = storeFunctionKind;
+            _isBuiltIn = isBuiltIn;
         }
 
         public string Name
@@ -61,6 +63,11 @@ namespace CodeFirstStoreFunctions
         public StoreFunctionKind StoreFunctionKind
         {
             get { return _storeFunctionKind; }
+        }
+
+        public bool? IsBuiltIn
+        {
+            get { return _isBuiltIn; }
         }
     }
 }
