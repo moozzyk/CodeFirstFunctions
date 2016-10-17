@@ -4,13 +4,6 @@ namespace CodeFirstStoreFunctions
 {
     using System;
 
-    public enum BuiltInOptions
-    { 
-        Unspecified,
-        BuiltIn,
-        NotBuiltIn
-    }
-
     [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
     public class DbFunctionDetailsAttribute : Attribute
     {

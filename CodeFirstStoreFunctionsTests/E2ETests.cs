@@ -223,6 +223,20 @@ namespace CodeFirstStoreFunctions
         {
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<int>("GetXmlInfo", xml);
         }
+
+        [DbFunction("CodeFirstDatabaseSchema", "SQUARE")]
+        [DbFunctionDetails(IsBuiltIn = BuiltInOptions.BuiltIn)]
+        public static float Square(float number)
+        {
+            throw new NotSupportedException();
+        }
+
+        [DbFunction("CodeFirstDatabaseSchema", "FORMAT")]
+        [DbFunctionDetails(IsBuiltIn = BuiltInOptions.BuiltIn)]
+        public static string Format(DateTime dateTime, string format, string culture)
+        {
+            throw new NotSupportedException();
+        }
     }
 
     #region initializer
@@ -711,6 +725,48 @@ namespace CodeFirstStoreFunctions
                 var q = ctx.GetXmlInfo(xmlParameter);
                 Assert.Equal(1234, q.ToArray().FirstOrDefault());
                 Assert.Equal("<output />", xmlParameter.Value);
+            }
+        }
+
+        [Fact]
+        public void Can_invoke_built_in_square()
+        {
+            const string expectedSql =
+                @"SELECT 
+    [Extent1].[IATACode] AS [IATACode], 
+    [Extent1].[CityCode] AS [CityCode], 
+    [Extent1].[CountryCode] AS [CountryCode], 
+    [Extent1].[Name] AS [Name], 
+    [Extent1].[TerminalCount] AS [TerminalCount], 
+    [Extent1].[Type] AS [Type]
+    FROM [dbo].[Airports] AS [Extent1]
+    WHERE  CAST( [Extent1].[TerminalCount] AS real) = (SQUARE( CAST( [Extent1].[TerminalCount] AS real)))";
+
+            using (var ctx = new MyContext())
+            {
+                var q = ctx.Airports.Where(a => a.TerminalCount == MyContext.Square(a.TerminalCount));
+                Assert.Equal(expectedSql, q.ToString());
+                Assert.Equal(2, q.Count());
+            }
+        }
+
+        [Fact]
+        public void Can_invoke_built_in_format()
+        {
+            const string expectedSql =
+                @"SELECT 
+    [Extent1].[Discriminator] AS [Discriminator], 
+    [Extent1].[Id] AS [Id], 
+    [Extent1].[ProductionDate] AS [ProductionDate], 
+    [Extent1].[Code] AS [Code]
+    FROM [dbo].[Vehicles] AS [Extent1]
+    WHERE ([Extent1].[Discriminator] IN (N'Aircraft',N'Vehicle')) AND (N'1929.12.07.' = (FORMAT([Extent1].[ProductionDate], N'd', N'hu-hu')))";
+
+            using (var ctx = new MyContext())
+            {
+                var q = ctx.Vehicles.Where(v => MyContext.Format(v.ProductionDate, "d", "hu-hu") == "1929.12.07.");
+                Assert.Equal(expectedSql, q.ToString());
+                Assert.Equal(1, q.Count());
             }
         }
     }

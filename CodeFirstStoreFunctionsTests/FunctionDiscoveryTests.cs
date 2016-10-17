@@ -178,6 +178,13 @@ namespace CodeFirstStoreFunctions
                     throw new NotImplementedException();
                 }
 
+                [DbFunction("CodeFirstDatabaseSchema", "BuiltInFunctionName")]
+                [DbFunctionDetails(IsBuiltIn = BuiltInOptions.BuiltIn)]
+                public static int BuiltInFunction(string param)
+                {
+                    throw new NotImplementedException();
+                }
+
                 public class TestEntityType
                 {
                     public int Id { get; set; }
@@ -722,6 +729,26 @@ namespace CodeFirstStoreFunctions
                 Assert.Contains("ParameterTypeAttribute", message);
                 Assert.Contains("ObjectParameter", message);
                 Assert.Contains("'param'", message);
+            }
+
+            [Fact]
+            public void FindFunctions_creates_function_descriptors_for_built_in_function()
+            {
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(new[] { typeof(Fake).GetMethod("BuiltInFunction") });
+
+                var functionDescriptor =
+                    new FunctionDiscovery(CreateModel(), mockType.Object)
+                        .FindFunctions().SingleOrDefault();
+
+                Assert.NotNull(functionDescriptor);
+                Assert.Equal(1, functionDescriptor.Parameters.Count());
+                Assert.Equal("param", functionDescriptor.Parameters.First().Name);
+                Assert.Equal("Edm.String", functionDescriptor.Parameters.First().EdmType.FullName);
+                Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
+                Assert.Equal(functionDescriptor.IsBuiltIn, true);
             }
 
             private static DbModel CreateModel()
