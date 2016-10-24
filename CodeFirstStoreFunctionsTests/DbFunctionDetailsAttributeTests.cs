@@ -44,5 +44,31 @@ namespace CodeFirstStoreFunctions
 
             Assert.Same(resultTypes, attr.ResultTypes);
         }
+
+        [Fact]
+        public void Is_BuiltIn_false_by_default_and_not_marked_as_set()
+        {
+            var attr = new DbFunctionDetailsAttribute();
+            Assert.False(attr.IsBuiltIn);
+            Assert.False(attr.IsBuiltInPropertySet);
+        }
+
+        [Fact]
+        public void Is_BuiltIn_false_when_set_to_false_and_marked_as_set()
+        {
+            var attr = new DbFunctionDetailsAttribute();
+            attr.IsBuiltIn = false;
+            Assert.False(attr.IsBuiltIn);
+            Assert.True(attr.IsBuiltInPropertySet);
+        }
+
+        [Fact]
+        public void Is_BuiltIn_true_when_set_to_true_and_marked_as_set()
+        {
+            var attr = new DbFunctionDetailsAttribute();
+            attr.IsBuiltIn = true;
+            Assert.True(attr.IsBuiltIn);
+            Assert.True(attr.IsBuiltInPropertySet);
+        }
     }
 }

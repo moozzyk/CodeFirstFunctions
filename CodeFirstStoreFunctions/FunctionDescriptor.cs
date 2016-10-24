@@ -18,7 +18,7 @@ namespace CodeFirstStoreFunctions
         private readonly bool? _isBuiltIn;
 
         public FunctionDescriptor(string name, IEnumerable<ParameterDescriptor> parameters,
-            EdmType[] returnTypes, string resultColumnName, string databaseSchema, StoreFunctionKind storeFunctionKind, bool? isBuiltIn = null)
+            EdmType[] returnTypes, string resultColumnName, string databaseSchema, StoreFunctionKind storeFunctionKind, bool? isBuiltIn)
       {
             Debug.Assert(!string.IsNullOrWhiteSpace(name), "invalid name");
             Debug.Assert(parameters != null, "parameters is null");
@@ -41,8 +41,8 @@ namespace CodeFirstStoreFunctions
         }
 
         public EdmType[] ReturnTypes
-        { 
-            get { return _returnTypes; } 
+        {
+            get { return _returnTypes; }
         }
 
         public IEnumerable<ParameterDescriptor> Parameters

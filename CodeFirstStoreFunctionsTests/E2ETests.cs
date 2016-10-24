@@ -225,14 +225,14 @@ namespace CodeFirstStoreFunctions
         }
 
         [DbFunction("CodeFirstDatabaseSchema", "SQUARE")]
-        [DbFunctionDetails(IsBuiltIn = BuiltInOptions.BuiltIn)]
+        [DbFunctionDetails(IsBuiltIn = true)]
         public static float Square(float number)
         {
             throw new NotSupportedException();
         }
 
         [DbFunction("CodeFirstDatabaseSchema", "FORMAT")]
-        [DbFunctionDetails(IsBuiltIn = BuiltInOptions.BuiltIn)]
+        [DbFunctionDetails(IsBuiltIn = true)]
         public static string Format(DateTime dateTime, string format, string culture)
         {
             throw new NotSupportedException();

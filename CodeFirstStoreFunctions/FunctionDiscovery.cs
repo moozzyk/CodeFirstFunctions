@@ -49,11 +49,11 @@ namespace CodeFirstStoreFunctions
             var returnGenericTypeDefinition = method.ReturnType.IsGenericType
                 ? method.ReturnType.GetGenericTypeDefinition()
                 : null;
-            
+
             if(functionAttribute != null ||                             // TVF, scalar UDF or StoreProc
                returnGenericTypeDefinition == typeof (ObjectResult<>))  // StoredProc without DbFunction attribute
             {
-                var functionDetailsAttr = 
+                var functionDetailsAttr =
                     Attribute.GetCustomAttribute(method, typeof(DbFunctionDetailsAttribute)) as DbFunctionDetailsAttribute;
 
                 var storeFunctionKind =
@@ -63,7 +63,7 @@ namespace CodeFirstStoreFunctions
                             ? StoreFunctionKind.StoredProcedure
                             : StoreFunctionKind.ScalarUserDefinedFunction;
 
-                if (storeFunctionKind == StoreFunctionKind.ScalarUserDefinedFunction && 
+                if (storeFunctionKind == StoreFunctionKind.ScalarUserDefinedFunction &&
                     (functionAttribute == null || functionAttribute.NamespaceName != "CodeFirstDatabaseSchema"))
                 {
                     throw new InvalidOperationException("Scalar store functions must be decorated with the 'DbFunction' attribute with the 'CodeFirstDatabaseSchema' namespace.");
@@ -81,7 +81,7 @@ namespace CodeFirstStoreFunctions
                     functionDetailsAttr != null ? functionDetailsAttr.ResultColumnName : null,
                     functionDetailsAttr != null ? functionDetailsAttr.DatabaseSchema : null,
                     storeFunctionKind,
-                    functionDetailsAttr != null ? GetBuiltInOption(functionDetailsAttr.IsBuiltIn) : null);
+                    GetBuiltInOption(functionDetailsAttr));
             }
 
             return null;
@@ -151,7 +151,7 @@ namespace CodeFirstStoreFunctions
                             parameter.Name, parameterEdmType));
                 }
 
-                yield return new ParameterDescriptor(parameter.Name, parameterEdmType, 
+                yield return new ParameterDescriptor(parameter.Name, parameterEdmType,
                     paramTypeAttribute != null ? paramTypeAttribute.StoreType : null, isObjectParameter);
             }
         }
@@ -215,7 +215,7 @@ namespace CodeFirstStoreFunctions
                 if ((edmType = FindStructuralType(unwrappedType)) != null)
                 {
                     return edmType;
-                }                
+                }
             }
 
             throw new InvalidOperationException(string.Format("No EdmType found for type '{0}'.", type.FullName));
@@ -241,16 +241,11 @@ namespace CodeFirstStoreFunctions
             return _model.ConceptualModel.EnumTypes.FirstOrDefault(t => t.Name == type.Name);
         }
 
-        private bool? GetBuiltInOption(BuiltInOptions builtInOption)
+        private bool? GetBuiltInOption(DbFunctionDetailsAttribute functionDetailsAttribute)
         {
-            if (builtInOption == BuiltInOptions.BuiltIn)
-                return true;
-            else if (builtInOption == BuiltInOptions.NotBuiltIn)
-                return false;
-            else if (builtInOption == BuiltInOptions.Unspecified)
-                return null;
-            else
-                throw new ArgumentException("invalid built in option");
+            return (functionDetailsAttribute != null && functionDetailsAttribute.IsBuiltInPropertySet)
+                ? functionDetailsAttribute.IsBuiltIn
+                : (bool?)null;
         }
     }
 }

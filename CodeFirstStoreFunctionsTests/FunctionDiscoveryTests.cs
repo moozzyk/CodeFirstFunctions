@@ -179,7 +179,7 @@ namespace CodeFirstStoreFunctions
                 }
 
                 [DbFunction("CodeFirstDatabaseSchema", "BuiltInFunctionName")]
-                [DbFunctionDetails(IsBuiltIn = BuiltInOptions.BuiltIn)]
+                [DbFunctionDetails(IsBuiltIn = true)]
                 public static int BuiltInFunction(string param)
                 {
                     throw new NotImplementedException();

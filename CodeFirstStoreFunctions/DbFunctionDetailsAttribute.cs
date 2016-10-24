@@ -7,6 +7,8 @@ namespace CodeFirstStoreFunctions
     [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
     public class DbFunctionDetailsAttribute : Attribute
     {
+        private bool _isBuiltIn;
+
         /// <summary>
         /// Gets or sets the name of the database schema of the store function.
         /// </summary>
@@ -23,8 +25,22 @@ namespace CodeFirstStoreFunctions
         public Type[] ResultTypes { get; set; }
 
         /// <summary>
-        /// Gets or sets whether the function is a built in function or not
+        /// Gets or sets whether the function is a built in function.
         /// </summary>
-        public BuiltInOptions IsBuiltIn { get; set; }
+        public bool IsBuiltIn
+        {
+            get
+            {
+                return _isBuiltIn;
+            }
+
+            set
+            {
+                _isBuiltIn = value;
+                IsBuiltInPropertySet = true;
+            }
+        }
+
+        internal bool IsBuiltInPropertySet { get; private set; }
     }
 }
