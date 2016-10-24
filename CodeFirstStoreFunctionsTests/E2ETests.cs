@@ -94,7 +94,7 @@ namespace CodeFirstStoreFunctions
             var airportTypeParameter =
                 airportType.HasValue
                     ? new ObjectParameter("AirportType", airportType)
-                    : new ObjectParameter("AirportType", typeof (int?)); 
+                    : new ObjectParameter("AirportType", typeof (int?));
 
             return ((IObjectContextAdapter)this).ObjectContext
                 .CreateQuery<int?>(
@@ -109,7 +109,7 @@ namespace CodeFirstStoreFunctions
             var airportTypeParameter =
                 airportType.HasValue
                     ? new ObjectParameter("AirportType", airportType)
-                    : new ObjectParameter("AirportType", typeof(AirportType?)); 
+                    : new ObjectParameter("AirportType", typeof(AirportType?));
 
             return ((IObjectContextAdapter)this).ObjectContext
                 .CreateQuery<AirportType?>(
@@ -157,7 +157,7 @@ namespace CodeFirstStoreFunctions
         {
             return ((IObjectContextAdapter)this).ObjectContext
                 .CreateQuery<int>(
-                    string.Format("[{0}].{1}", GetType().Name, "[MyCustomTVF]()"));            
+                    string.Format("[{0}].{1}", GetType().Name, "[MyCustomTVF]()"));
         }
 
         [DbFunction("MyContext", "GetUniqueTerminalCountSP")]
@@ -181,7 +181,7 @@ namespace CodeFirstStoreFunctions
                 new ObjectParameter("CountryCode", countryCode) :
                 new ObjectParameter("CountryCode", typeof(string));
 
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Airport>("GetAirportsSP", countryCodeParameter);            
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Airport>("GetAirportsSP", countryCodeParameter);
         }
 
         public virtual ObjectResult<AirportType> GetAirportTypeSP(AirportType airportType)
@@ -193,7 +193,7 @@ namespace CodeFirstStoreFunctions
 
         public virtual ObjectResult<Aircraft> GetAircraftSP()
         {
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Aircraft>("GetAircraftSP");            
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Aircraft>("GetAircraftSP");
         }
 
         [DbFunctionDetails(
@@ -249,7 +249,7 @@ namespace CodeFirstStoreFunctions
             context.Airports.Add(
                 new Airport
                 {
-                    IATACode = "WRO", 
+                    IATACode = "WRO",
                     CityCode = "WRO",
                     CountryCode = "PL",
                     Name = "Wroclaw Copernicus Airport",
@@ -269,7 +269,7 @@ namespace CodeFirstStoreFunctions
                 });
 
             context.Airports.Add(
-                new Airport 
+                new Airport
                 {
                     IATACode = "LTN",
                     CityCode = "LON",
@@ -292,9 +292,8 @@ namespace CodeFirstStoreFunctions
 
             context.Vehicles.Add(new Aircraft
             {
-                Code = "AT7", 
+                Code = "AT7",
                 ProductionDate = new DateTime(1929, 12, 7)
-            
             });
 
             context.SaveChanges();
@@ -454,7 +453,7 @@ namespace CodeFirstStoreFunctions
                 "SELECT 1234 AS Number");
         }
     }
-    
+
     #endregion
 
     public class E2ETests
@@ -472,7 +471,7 @@ namespace CodeFirstStoreFunctions
     [Extent1].[TerminalCount] AS [TerminalCount]
     FROM [dbo].[GetUniqueTerminalCount]() AS [Extent1]
     WHERE  CAST( [Extent1].[TerminalCount] AS int) > 1";
-                
+
                 Assert.Equal(expectedSql, ((ObjectQuery)query).ToTraceString());
 
                 Assert.Equal(new byte[] {2,5},  query.ToArray());
@@ -693,7 +692,7 @@ namespace CodeFirstStoreFunctions
             using (var ctx = new MyContext())
             {
                 Assert.Equal(new[] { 1 }, ctx.FunctionWhoseNameIsDifferentThenTVFName().ToList());
-            }            
+            }
         }
 
         [Fact]
@@ -760,11 +759,11 @@ namespace CodeFirstStoreFunctions
     [Extent1].[ProductionDate] AS [ProductionDate], 
     [Extent1].[Code] AS [Code]
     FROM [dbo].[Vehicles] AS [Extent1]
-    WHERE ([Extent1].[Discriminator] IN (N'Aircraft',N'Vehicle')) AND (N'1929.12.07.' = (FORMAT([Extent1].[ProductionDate], N'd', N'hu-hu')))";
+    WHERE ([Extent1].[Discriminator] IN (N'Aircraft',N'Vehicle')) AND (N'1929. 12. 07.' = (FORMAT([Extent1].[ProductionDate], N'd', N'hu-hu')))";
 
             using (var ctx = new MyContext())
             {
-                var q = ctx.Vehicles.Where(v => MyContext.Format(v.ProductionDate, "d", "hu-hu") == "1929.12.07.");
+                var q = ctx.Vehicles.Where(v => MyContext.Format(v.ProductionDate, "d", "hu-hu") == "1929. 12. 07.");
                 Assert.Equal(expectedSql, q.ToString());
                 Assert.Equal(1, q.Count());
             }
