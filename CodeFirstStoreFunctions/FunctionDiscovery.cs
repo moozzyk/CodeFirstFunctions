@@ -30,7 +30,7 @@ namespace CodeFirstStoreFunctions
         public IEnumerable<FunctionDescriptor> FindFunctions()
         {
             const BindingFlags bindingFlags =
-                BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.InvokeMethod |
+                BindingFlags.DeclaredOnly | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.InvokeMethod |
                 BindingFlags.Static | BindingFlags.Instance;
 
             foreach (var method in _type.GetMethods(bindingFlags))

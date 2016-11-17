@@ -42,6 +42,13 @@ namespace CodeFirstStoreFunctions
                     throw new NotImplementedException();
                 }
 
+                [DbFunction("ns", "PrivateFunction")]
+                [DbFunctionDetails(DatabaseSchema = "abc", ResultColumnName = "col")]
+                private IQueryable<int> PrivateFunction(int p1)
+                {
+                    throw new NotImplementedException();
+                }
+
                 [DbFunction("ns", "EnumFunctionImportComposable")]
                 [DbFunctionDetails(DatabaseSchema = "abc", ResultColumnName = "col")]
                 public IQueryable<TestEnumType> EnumFunctionImportComposable(TestEnumType p1, string p2)
@@ -228,6 +235,28 @@ namespace CodeFirstStoreFunctions
                 Assert.NotNull(functionDescriptor);
                 Assert.Equal("PrimitiveFunctionImportComposable", functionDescriptor.Name);
                 Assert.Equal(2, functionDescriptor.Parameters.Count());
+                Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
+                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
+            }
+
+            [Fact]
+            public void FindFunctions_creates_function_private()
+            {
+                var mockType = new Mock<Type>();
+                mockType
+                    .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
+                    .Returns(typeof(Fake)
+                        .GetMethods()
+                        .Where(m => m.Name == "PrivateFunction")
+                        .ToArray());
+
+                var functionDescriptor =
+                    new FunctionDiscovery(CreateModel(), mockType.Object)
+                        .FindFunctions().Single();
+
+                Assert.NotNull(functionDescriptor);
+                Assert.Equal("PrivateFunction", functionDescriptor.Name);
+                Assert.Equal(1, functionDescriptor.Parameters.Count());
                 Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
                 Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
             }
