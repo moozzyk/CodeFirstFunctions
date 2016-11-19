@@ -246,7 +246,7 @@ namespace CodeFirstStoreFunctions
                 mockType
                     .Setup(t => t.GetMethods(It.IsAny<BindingFlags>()))
                     .Returns(typeof(Fake)
-                        .GetMethods()
+                        .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
                         .Where(m => m.Name == "PrivateFunction")
                         .ToArray());
 
