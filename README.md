@@ -11,14 +11,14 @@ You may still find some useful information there:
 
 #How to get it
 
-You can get it from NuGet - just install the [url:EntityFramework.CodeFirstStoreFunctions NuGet package |http://www.nuget.org/packages/EntityFramework.CodeFirstStoreFunctions]
+You can get it from NuGet - just install the [EntityFramework.CodeFirstStoreFunctions NuGet package](http://www.nuget.org/packages/EntityFramework.CodeFirstStoreFunctions)
 
 #How to use it
 
  - [See what's new in Beta](http://blog.3d-logic.com/2014/08/11/the-beta-version-of-store-functions-for-entityframework-6-1-1-code-first-available)
  - [The 1.0.0 version released](https://blog.3d-logic.com/2014/10/18/the-final-version-of-the-store-functions-for-entityframework-6-1-1-code-first-convention-released)
 
-The project uses a custom convention to discover TVF and sored proc stub functions which are then mapped to corresponding store functions. This blog post describes in more details how to use the convnention [url:Support for Store Functions (TVFs and Stored Procs) in Entity Framework 6.1 |http://blog.3d-logic.com/2014/04/09/support-for-store-functions-tvfs-and-stored-procs-in-entity-framework-6-1/]. Below you can find an example that uses the convention to map a method to a TVF and to a stored proc. Note that the code below only shows store functions that return entities but it is also possible to use coplex or scalar types. These scenarios are covered by [End-to-end tests](https://github.com/moozzyk/CodeFirstFunctions/blob/master/CodeFirstStoreFunctionsTests/E2ETests.cs).
+The project uses a custom convention to discover TVF and sored proc stub functions which are then mapped to corresponding store functions. This blog post describes in more details how to use the convnention [Support for Store Functions (TVFs and Stored Procs) in Entity Framework 6.1](http://blog.3d-logic.com/2014/04/09/support-for-store-functions-tvfs-and-stored-procs-in-entity-framework-6-1/). Below you can find an example that uses the convention to map a method to a TVF and to a stored proc. Note that the code below only shows store functions that return entities but it is also possible to use coplex or scalar types. These scenarios are covered by [End-to-end tests](https://github.com/moozzyk/CodeFirstFunctions/blob/master/CodeFirstStoreFunctionsTests/E2ETests.cs).
 
 ```C#
 public class Customer
