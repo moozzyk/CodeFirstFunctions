@@ -44,6 +44,27 @@ namespace CodeFirstStoreFunctions
         public string Code { get; set; }
     }
 
+    public class Address
+    {
+        public string Street { get; set; }
+
+        public string City { get; set; }
+
+        public string ZipCode { get; set; }
+
+        public string CountryCode { get; set; }
+    }
+
+    public class Airline
+    {
+        [Key]
+        public string IATACode { get; set; }
+
+        public string Name { get; set; }
+
+        public Address Address { get; set; }
+    }
+
     public class MyContext : DbContext
     {
         static MyContext()
@@ -55,6 +76,8 @@ namespace CodeFirstStoreFunctions
 
         public DbSet<Vehicle> Vehicles { get; set; }
 
+        public DbSet<Airline> Airlines { get; set; }
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Airport>().Property(a => a.IATACode).IsFixedLength().IsUnicode().HasMaxLength(3);
@@ -62,6 +85,9 @@ namespace CodeFirstStoreFunctions
             modelBuilder.Entity<Airport>().Property(a => a.CountryCode).IsFixedLength().IsUnicode().HasMaxLength(2);
 
             modelBuilder.ComplexType<Airport_ResultType>();
+
+            modelBuilder.ComplexType<Address>();
+            modelBuilder.Entity<Airline>().Property(a => a.IATACode).IsFixedLength().IsUnicode().HasMaxLength(2);
 
             modelBuilder.Conventions.Add(new FunctionsConvention<MyContext>("dbo"));
         }
@@ -296,11 +322,37 @@ namespace CodeFirstStoreFunctions
                 ProductionDate = new DateTime(1929, 12, 7)
             });
 
+            context.Airlines.Add(new Airline
+            {
+                IATACode = "LO",
+                Name = "LOT Polish Airlines",
+                Address = new Address
+                {
+                    Street = "ul. 17 Stycznia 43",
+                    City = "Warsaw",
+                    ZipCode = "02-146",
+                    CountryCode = "PL"
+                }
+            });
+
+            context.Airlines.Add(new Airline
+            {
+                IATACode = "QF",
+                Name = "Qantas Airlines",
+                Address = new Address
+                {
+                    Street = "203 Coward Street, NSW",
+                    City = "Mascot",
+                    ZipCode = "2020",
+                    CountryCode = "AU"
+                }
+            });
+
             context.SaveChanges();
 
             context.Database.ExecuteSqlCommand(
                 "CREATE FUNCTION [dbo].[GetAirports] " +
-                " (@CountryCode nchar(3)) " +
+                " (@CountryCode nchar(2)) " +
                 "RETURNS TABLE " +
                 "RETURN " +
                 "SELECT [IATACode], " +
@@ -314,7 +366,7 @@ namespace CodeFirstStoreFunctions
 
             context.Database.ExecuteSqlCommand(
                 "CREATE FUNCTION [dbo].[GetAirports_ComplexType] " +
-                " (@CountryCode nchar(3)) " +
+                " (@CountryCode nchar(2)) " +
                 "RETURNS TABLE " +
                 "RETURN " +
                 "SELECT [IATACode], " +
@@ -451,6 +503,19 @@ namespace CodeFirstStoreFunctions
                 "CREATE PROCEDURE [dbo].[GetXmlInfo] @Xml xml out AS " +
                 "SELECT @Xml = '<output />' " +
                 "SELECT 1234 AS Number");
+
+            context.Database.ExecuteSqlCommand(
+                "CREATE FUNCTION[dbo].[GetAirlines](@CountryCode nchar(2)) " +
+                "RETURNS TABLE " +
+                "RETURN " +
+                "SELECT [IATACode]," +
+                   "[Name]," +
+                   "[Address_Street]," +
+                   "[Address_City]," +
+                   "[Address_ZipCode]," +
+                   "[Address_CountryCode]" +
+                "FROM[dbo].[Airlines] " +
+                "WHERE[Address_CountryCode] = @CountryCode");
         }
     }
 
