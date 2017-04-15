@@ -263,11 +263,24 @@ namespace CodeFirstStoreFunctions
         {
             throw new NotSupportedException();
         }
+
+        [DbFunction("CodeFirstStoreFunctions", "GetAirlines")]
+        public virtual IQueryable<Airline> GetAirlines(string countryCode)
+        {
+            var countryCodeParameter = countryCode != null ?
+                new ObjectParameter("CountryCode", countryCode) :
+                new ObjectParameter("CountryCode", typeof(string));
+
+            return ((IObjectContextAdapter)this).ObjectContext
+                .CreateQuery<Airline>(
+                    string.Format("[{0}].{1}", GetType().Name, "[GetAirlines](@CountryCode)"),
+                    countryCodeParameter);
+        }
     }
 
     #region initializer
 
-//    public class MyContextInitializer : DropCreateDatabaseIfModelChanges<MyContext>
+    //    public class MyContextInitializer : DropCreateDatabaseIfModelChanges<MyContext>
     public class MyContextInitializer : DropCreateDatabaseAlways<MyContext>
     {
         protected override void Seed(MyContext context)
@@ -831,6 +844,26 @@ namespace CodeFirstStoreFunctions
                 var q = ctx.Vehicles.Where(v => MyContext.Format(v.ProductionDate, "d", "hu-hu") == "1929. 12. 07.");
                 Assert.Equal(expectedSql, q.ToString());
                 Assert.Equal(1, q.Count());
+            }
+        }
+
+        [Fact]
+        public void Can_invoke_TVF_for_entity_with_complex_property()
+        {
+            using (var ctx = new MyContext())
+            {
+                var query = from airlines in ctx.GetAirlines("PL")
+                            where airlines.Address.City == "Warsaw"
+                            select airlines;
+
+                const string expectedSql = @"SELECT 
+    [Extent1].[TerminalCount] AS [TerminalCount]
+    FROM [dbo].[GetUniqueTerminalCount]() AS [Extent1]
+    WHERE  CAST( [Extent1].[TerminalCount] AS int) > 1";
+
+                Assert.Equal(expectedSql, ((ObjectQuery)query).ToTraceString());
+
+                Assert.Equal(1, query.ToArray().Length);
             }
         }
     }

@@ -46,10 +46,10 @@ namespace CodeFirstStoreFunctions
                         .Parameters
                         .Select(
                             p => FunctionParameter.Create(
-                                p.Name, 
+                                p.Name,
                                 GetStorePrimitiveType(p),
-                                p.IsOutParam 
-                                    ? ParameterMode.InOut 
+                                p.IsOutParam
+                                    ? ParameterMode.InOut
                                     : ParameterMode.In)).ToArray(),
 
                     ReturnParameters = CreateFunctionReturnParameters(functionDescriptor),
@@ -103,18 +103,21 @@ namespace CodeFirstStoreFunctions
         {
             if (edmType.BuiltInTypeKind == BuiltInTypeKind.EntityType)
             {
-                var propertyToSoreTypeUsage = FindStoreTypeUsages((EntityType)edmType);
+                var propertyToStoreTypeUsage = FindStoreTypeUsages((EntityType)edmType);
+                var properties = new List<EdmProperty>();
+                AddEntityTypeProperties((EntityType)edmType, properties);
+
                 return
                     RowType.Create(
-                        ((EntityType) edmType).Properties.Select(
-                            m => EdmProperty.Create(m.Name, propertyToSoreTypeUsage[m])), null);
+                       properties.Select(
+                            m => EdmProperty.Create(m.Name, propertyToStoreTypeUsage[m])), null);
             }
 
             if (edmType.BuiltInTypeKind == BuiltInTypeKind.ComplexType)
             {
                 return
                     RowType.Create(
-                        ((StructuralType) edmType).Members.Select(
+                        ((StructuralType)edmType).Members.Select(
                             m => EdmProperty.Create(m.Name, GetStorePrimitiveTypeUsage(m.TypeUsage))), null);
             }
 
@@ -134,14 +137,42 @@ namespace CodeFirstStoreFunctions
                     }, null);
         }
 
+        private void AddEntityTypeProperties(EntityType entityType, List<EdmProperty> properties)
+        {
+            foreach(var p in entityType.Properties)
+            {
+                if (p.IsComplexType)
+                {
+                    AddComplexTypeProperties(p.ComplexType, properties);
+                }
+                else
+                {
+                    properties.Add(p);
+                }
+            }
+        }
+
+        private void AddComplexTypeProperties(ComplexType complexType, List<EdmProperty> properties)
+        {
+            foreach (var p in complexType.Properties)
+            {
+                if (p.IsComplexType)
+                {
+                    throw new NotImplementedException("Nested complex types are not supported.");
+                }
+
+                properties.Add(p);
+            }
+        }
+
         private Dictionary<EdmProperty, TypeUsage> FindStoreTypeUsages(EntityType entityType)
         {
             Debug.Assert(entityType != null, "entityType == null");
 
             var propertyToStoreTypeUsage = new Dictionary<EdmProperty, TypeUsage>();
-			
+
             var types = Tools.GetTypeHierarchy(entityType);
-            var entityTypeMappings = 
+            var entityTypeMappings =
                 _model.ConceptualToStoreMapping.EntitySetMappings
                     .SelectMany(s => s.EntityTypeMappings)
                     .Where(t => types.Contains(t.EntityType))
@@ -150,26 +181,58 @@ namespace CodeFirstStoreFunctions
             foreach (var property in entityType.Properties)
             {
                 foreach (var entityTypeMapping in entityTypeMappings)
-                { 
+                {
                     var propertyMapping =
-                        (ScalarPropertyMapping)entityTypeMapping.Fragments.SelectMany(f => f.PropertyMappings)
+                        entityTypeMapping.Fragments.SelectMany(f => f.PropertyMappings)
                         .FirstOrDefault(p => p.Property == property);
 
-                    if (propertyMapping != null)
+                    var scalarPropertyMapping = propertyMapping as ScalarPropertyMapping;
+                    if (scalarPropertyMapping != null)
                     {
                         Debug.Assert(!propertyToStoreTypeUsage.ContainsKey(property), "Property already in dictionary");
 
                         propertyToStoreTypeUsage[property] = TypeUsage.Create(
-                            propertyMapping.Column.TypeUsage.EdmType,
-                            propertyMapping.Column.TypeUsage.Facets.Where(
+                            scalarPropertyMapping.Column.TypeUsage.EdmType,
+                            scalarPropertyMapping.Column.TypeUsage.Facets.Where(
                                 f => f.Name != "StoreGeneratedPattern" && f.Name != "ConcurrencyMode"));
 
+                        break;
+                    }
+
+                    var complexPropertyMapping = propertyMapping as ComplexPropertyMapping;
+                    if (complexPropertyMapping != null)
+                    {
+                        AddComplexPropertyMapping(complexPropertyMapping, propertyToStoreTypeUsage);
                         break;
                     }
                 }
             }
 
             return propertyToStoreTypeUsage;
+        }
+
+        private void AddComplexPropertyMapping(ComplexPropertyMapping complexPropertyMapping,
+            Dictionary<EdmProperty, TypeUsage> propertyToStoreTypeUsage)
+        {
+            var complexType = complexPropertyMapping.TypeMappings.First().ComplexType;
+            foreach (var property in complexType.Properties)
+            {
+                var propertyMapping = complexPropertyMapping.TypeMappings.First()
+                    .PropertyMappings.FirstOrDefault(p => p.Property == property);
+
+                var scalarPropertyMapping = propertyMapping as ScalarPropertyMapping;
+                if (scalarPropertyMapping != null && !propertyToStoreTypeUsage.ContainsKey(property))
+                {
+                    propertyToStoreTypeUsage[property] = TypeUsage.Create(
+                        scalarPropertyMapping.Column.TypeUsage.EdmType,
+                        scalarPropertyMapping.Column.TypeUsage.Facets.Where(
+                            f => f.Name != "StoreGeneratedPattern" && f.Name != "ConcurrencyMode"));
+                }
+                else
+                {
+                    throw new NotImplementedException("Nested complex types not supported.");
+                }
+            }
         }
 
         private TypeUsage GetStorePrimitiveTypeUsage(TypeUsage typeUsage)
