@@ -55,6 +55,8 @@ namespace CodeFirstStoreFunctions
             var model = new DbModelBuilder()
                     .Build(new DbProviderInfo("System.Data.SqlClient", "2012"));
 
+            var enumType = EnumType.Create("TestEnum", "TestNs",PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32), false, new EnumMember[]{EnumMember.Create("foo", 1, null)}, null);
+
             var complexType = ComplexType.Create("CT", "ns", DataSpace.CSpace,
                 new[]
                 {
@@ -62,6 +64,7 @@ namespace CodeFirstStoreFunctions
                         TypeUsage.CreateDefaultTypeUsage(PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String))),
                     EdmProperty.Create("ZipCode",
                         TypeUsage.CreateDefaultTypeUsage(PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32))),
+                    EdmProperty.Create("MyEnum", TypeUsage.CreateDefaultTypeUsage(enumType))
                 },
                 null);
 
@@ -86,6 +89,50 @@ namespace CodeFirstStoreFunctions
             Assert.Equal(ParameterMode.In, storeFunction.Parameters[0].Mode);
             Assert.False(storeFunction.IsComposableAttribute);
         }
+
+        [Fact]
+        public void Crate_creates_store_function_for_complex_type_withEnum_in_TableValuedFunction()
+        {
+            var model = new DbModelBuilder()
+                    .Build(new DbProviderInfo("System.Data.SqlClient", "2012"));
+
+            var enumType = EnumType.Create("TestEnum", "TestNs", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32), false, new EnumMember[] { EnumMember.Create("foo", 1, null) }, null);
+
+            var complexType = ComplexType.Create("CT", "ns", DataSpace.CSpace,
+                new[]
+                {
+                    EdmProperty.Create("Street",
+                        TypeUsage.CreateDefaultTypeUsage(PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String))),
+                    EdmProperty.Create("ZipCode",
+                        TypeUsage.CreateDefaultTypeUsage(PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32))),
+                    EdmProperty.Create("MyEnum", TypeUsage.CreateDefaultTypeUsage(enumType))
+                },
+                null);
+
+            var functionDescriptor =
+                new FunctionDescriptor(
+                    "f",
+                    new[]
+                    {new ParameterDescriptor("p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), null, false)},
+                    new EdmType[] { complexType },
+                    "ResultCol",
+                    "dbo",
+                    StoreFunctionKind.TableValuedFunction,
+                    isBuiltIn: null);
+
+            var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionDescriptor);
+
+            Assert.Equal(
+                BuiltInTypeKind.CollectionType,
+                storeFunction.ReturnParameter.TypeUsage.EdmType.BuiltInTypeKind);
+
+            Assert.Equal(1, storeFunction.Parameters.Count);
+            Assert.Equal("p1", storeFunction.Parameters[0].Name);
+            Assert.Equal("nvarchar(max)", storeFunction.Parameters[0].TypeName);
+            Assert.Equal(ParameterMode.In, storeFunction.Parameters[0].Mode);
+            Assert.True(storeFunction.IsComposableAttribute);
+        }
+
 
         [Fact]
         public void Crate_creates_store_function_for_enum_type_function_import()

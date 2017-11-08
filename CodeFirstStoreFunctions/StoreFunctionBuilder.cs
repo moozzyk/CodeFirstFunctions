@@ -115,7 +115,9 @@ namespace CodeFirstStoreFunctions
                 return
                     RowType.Create(
                         ((StructuralType) edmType).Members.Select(
-                            m => EdmProperty.Create(m.Name, GetStorePrimitiveTypeUsage(m.TypeUsage))), null);
+                            m => m.TypeUsage.EdmType.BuiltInTypeKind == BuiltInTypeKind.EnumType ?
+                                EdmProperty.Create(m.Name, GetStorePrimitiveTypeUsage(TypeUsage.CreateDefaultTypeUsage(((EnumType)m.TypeUsage.EdmType).UnderlyingType))) :
+                                EdmProperty.Create(m.Name, GetStorePrimitiveTypeUsage(m.TypeUsage))), null);
             }
 
             if (edmType.BuiltInTypeKind == BuiltInTypeKind.EnumType)
