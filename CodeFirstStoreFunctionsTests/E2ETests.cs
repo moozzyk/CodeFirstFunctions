@@ -30,6 +30,7 @@ namespace CodeFirstStoreFunctions
         public string CountryCode { get; set; }
         public string Name { get; set; }
         public byte TerminalCount { get; set; }
+        public AirportType ResultType { get; set; }
     }
 
     public class Vehicle
@@ -321,7 +322,8 @@ namespace CodeFirstStoreFunctions
                 "   [CityCode], " +
                 "   [CountryCode], " +
                 "   [Name], " +
-                "   [TerminalCount] " +
+                "   [TerminalCount], " +
+                "   [Type] AS [ResultType] " +
                 "FROM [dbo].[Airports] " +
                 "WHERE [CountryCode] = @CountryCode");
 
@@ -369,7 +371,8 @@ namespace CodeFirstStoreFunctions
                 "   [CityCode], " +
                 "   [CountryCode], " +
                 "   [Name], " +
-                "   [TerminalCount] " +
+                "   [TerminalCount], " +
+                "   [Type] AS [ResultType] " +
                 "FROM [dbo].[Airports] " +
                 "WHERE [CountryCode] = @CountryCode");
 
@@ -410,7 +413,8 @@ namespace CodeFirstStoreFunctions
                 "   [CityCode], " +
                 "   [CountryCode], " +
                 "   [Name], " +
-                "   [TerminalCount] " +
+                "   [TerminalCount], " +
+                "   [Type] AS [ResultType] " +
                 "FROM [dbo].[Airports] " +
                 "SELECT [IATACode], " +
                 "   [CityCode], " +
@@ -493,7 +497,8 @@ namespace CodeFirstStoreFunctions
     [Extent1].[CityCode] AS [CityCode], 
     [Extent1].[CountryCode] AS [CountryCode], 
     [Extent1].[Name] AS [Name], 
-    [Extent1].[TerminalCount] AS [TerminalCount]
+    [Extent1].[TerminalCount] AS [TerminalCount], 
+    [Extent1].[ResultType] AS [ResultType]
     FROM [dbo].[GetAirports_ComplexType](@CountryCode) AS [Extent1]
     WHERE  CAST( [Extent1].[TerminalCount] AS int) > 0";
 

@@ -55,7 +55,7 @@ namespace CodeFirstStoreFunctions
             var model = new DbModelBuilder()
                     .Build(new DbProviderInfo("System.Data.SqlClient", "2012"));
 
-            var enumType = EnumType.Create("TestEnum", "TestNs",PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32), false, new EnumMember[]{EnumMember.Create("foo", 1, null)}, null);
+            var enumType = EnumType.Create("TestEnum", "TestNs", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32), false, new [] { EnumMember.Create("foo", 1, null) }, null);
 
             var complexType = ComplexType.Create("CT", "ns", DataSpace.CSpace,
                 new[]
@@ -73,7 +73,7 @@ namespace CodeFirstStoreFunctions
                     "f",
                     new[]
                     {new ParameterDescriptor("p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), null, false)},
-                    new EdmType[] {complexType},
+                    new EdmType[] { complexType },
                     "ResultCol",
                     "dbo",
                     StoreFunctionKind.StoredProcedure,
@@ -132,7 +132,6 @@ namespace CodeFirstStoreFunctions
             Assert.Equal(ParameterMode.In, storeFunction.Parameters[0].Mode);
             Assert.True(storeFunction.IsComposableAttribute);
         }
-
 
         [Fact]
         public void Crate_creates_store_function_for_enum_type_function_import()
@@ -211,7 +210,7 @@ namespace CodeFirstStoreFunctions
                     "f",
                     new[]
                     {new ParameterDescriptor("p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), null, false)},
-                    new EdmType[] {PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64)},
+                    new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
                     "ResultCol", "dbo", StoreFunctionKind.TableValuedFunction, isBuiltIn: null);
 
             var storeFunction = new StoreFunctionBuilder(model, "docs").Create(functionDescriptor);
@@ -255,7 +254,7 @@ namespace CodeFirstStoreFunctions
                         new ParameterDescriptor(
                             "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), "json", true),
                     },
-                    new EdmType[] {PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64)},
+                    new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
                     "ResultCol", "dbo", StoreFunctionKind.StoredProcedure, isBuiltIn: null);
 
             Assert.Contains("'json'",
