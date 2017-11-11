@@ -10,7 +10,7 @@ namespace CodeFirstStoreFunctions
     using System.Linq;
     using Xunit;
 
-    public enum AirportType { International }
+    public enum AirportType { Regional, International }
 
     public class Airport
     {
@@ -30,7 +30,7 @@ namespace CodeFirstStoreFunctions
         public string CountryCode { get; set; }
         public string Name { get; set; }
         public byte TerminalCount { get; set; }
-        public AirportType ResultType { get; set; }
+        public AirportType Type { get; set; }
     }
 
     public class Vehicle
@@ -291,6 +291,17 @@ namespace CodeFirstStoreFunctions
                     Type = AirportType.International
                 });
 
+            context.Airports.Add(
+            new Airport
+            {
+                IATACode = "OLM",
+                CityCode = "OLM",
+                CountryCode = "US",
+                Name = "Olympia Regional Airport",
+                TerminalCount = 1,
+                Type = AirportType.Regional
+            });
+
             context.Vehicles.Add(new Aircraft
             {
                 Code = "AT7",
@@ -323,7 +334,7 @@ namespace CodeFirstStoreFunctions
                 "   [CountryCode], " +
                 "   [Name], " +
                 "   [TerminalCount], " +
-                "   [Type] AS [ResultType] " +
+                "   [Type] " +
                 "FROM [dbo].[Airports] " +
                 "WHERE [CountryCode] = @CountryCode");
 
@@ -372,7 +383,7 @@ namespace CodeFirstStoreFunctions
                 "   [CountryCode], " +
                 "   [Name], " +
                 "   [TerminalCount], " +
-                "   [Type] AS [ResultType] " +
+                "   [Type] " +
                 "FROM [dbo].[Airports] " +
                 "WHERE [CountryCode] = @CountryCode");
 
@@ -414,7 +425,7 @@ namespace CodeFirstStoreFunctions
                 "   [CountryCode], " +
                 "   [Name], " +
                 "   [TerminalCount], " +
-                "   [Type] AS [ResultType] " +
+                "   [Type] " +
                 "FROM [dbo].[Airports] " +
                 "SELECT [IATACode], " +
                 "   [CityCode], " +
@@ -498,7 +509,7 @@ namespace CodeFirstStoreFunctions
     [Extent1].[CountryCode] AS [CountryCode], 
     [Extent1].[Name] AS [Name], 
     [Extent1].[TerminalCount] AS [TerminalCount], 
-    [Extent1].[ResultType] AS [ResultType]
+    [Extent1].[Type] AS [Type]
     FROM [dbo].[GetAirports_ComplexType](@CountryCode) AS [Extent1]
     WHERE  CAST( [Extent1].[TerminalCount] AS int) > 0";
 
@@ -512,6 +523,7 @@ namespace CodeFirstStoreFunctions
                 Assert.Equal("PL", result[0].CountryCode);
                 Assert.Equal(2, result[0].TerminalCount);
                 Assert.Equal("Wroclaw Copernicus Airport", result[0].Name);
+                Assert.Equal(AirportType.International, result[0].Type);
             }
         }
 
@@ -665,10 +677,10 @@ namespace CodeFirstStoreFunctions
             using (var ctx = new MyContext())
             {
                 var results = ctx.MultipleResultSets();
-                Assert.Equal(4, results.ToList().Count);
+                Assert.Equal(5, results.ToList().Count);
 
                 var secondResultSet = results.GetNextResult<Airport>();
-                Assert.Equal(4, secondResultSet.ToList().Count);
+                Assert.Equal(5, secondResultSet.ToList().Count);
 
                 var thirdResultSet = secondResultSet.GetNextResult<Aircraft>();
                 Assert.Equal(new[] { "AT7" }, thirdResultSet.ToList().Select(r => r.Code));
@@ -750,7 +762,7 @@ namespace CodeFirstStoreFunctions
             {
                 var q = ctx.Airports.Where(a => a.TerminalCount == MyContext.Square(a.TerminalCount));
                 Assert.Equal(expectedSql, q.ToString());
-                Assert.Equal(2, q.Count());
+                Assert.Equal(3, q.Count());
             }
         }
 
