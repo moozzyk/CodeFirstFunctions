@@ -5,11 +5,8 @@
     <version>1.1.1</version>
     <authors>Pawel "moozzyk" Kadluczka</authors>
     <title>Support for store functions for Entity Framework 6.1.1+ Code First.</title>
-    <licenseUrl>https://codefirstfunctions.codeplex.com/license</licenseUrl>
-    <projectUrl>https://codefirstfunctions.codeplex.com</projectUrl>
-    <!--
-    <iconUrl>http://download.codeplex.com/Project/Download/FileDownload.aspx?....</iconUrl>
-    -->
+    <licenseUrl>https://raw.githubusercontent.com/moozzyk/CodeFirstFunctions/d5b1aa9958951e4cc77edf80c0470fef33da81fd/License.txt</licenseUrl>
+    <projectUrl>https://github.com/moozzyk/CodeFirstFunctions</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Support for store functions (table valued functions, scalar user defined functions and stored procedures) for Entity Framework 6.1.1+ Code First.</description>
     <summary>Support for store functions (table valued functions, scalar user defined functions and stored procedures) for Entity Framework 6.1.1+ Code First.</summary>
