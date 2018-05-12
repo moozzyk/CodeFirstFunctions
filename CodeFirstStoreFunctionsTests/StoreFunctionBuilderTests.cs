@@ -284,5 +284,25 @@ namespace CodeFirstStoreFunctions
                     isBuiltIn == true);
             }
         }
+
+        [Fact]
+        public void Niladic_attribute_set_correctly()
+        {
+            var model = new DbModelBuilder()
+                .Build(new DbProviderInfo("System.Data.SqlClient", "2012"));
+
+            foreach (var isNiladic in new bool?[] { null, true, false })
+            {
+                var functionDescriptor =
+                    new FunctionDescriptor(
+                        "f",
+                        new[] { new ParameterDescriptor("p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), null, false) },
+                        new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
+                        "ResultCol", "dbo", StoreFunctionKind.TableValuedFunction, isBuiltIn: null, isNiladic: isNiladic);
+
+                Assert.Equal(new StoreFunctionBuilder(model, "docs", "ns").Create(functionDescriptor).NiladicFunctionAttribute,
+                    isNiladic == true);
+            }
+        }
     }
 }
