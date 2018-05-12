@@ -27,7 +27,7 @@ namespace CodeFirstStoreFunctions
                             "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), null, false),
                     },
                     new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
-                    "ResultCol", "dbo", StoreFunctionKind.TableValuedFunction, isBuiltIn: null);
+                    "ResultCol", "dbo", StoreFunctionKind.TableValuedFunction, isBuiltIn: null, isNiladic: null);
 
             var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionDescriptor);
 
@@ -77,7 +77,8 @@ namespace CodeFirstStoreFunctions
                     "ResultCol",
                     "dbo",
                     StoreFunctionKind.StoredProcedure,
-                    isBuiltIn: null);
+                    isBuiltIn: null,
+                    isNiladic: null);
 
             var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionDescriptor);
 
@@ -118,7 +119,8 @@ namespace CodeFirstStoreFunctions
                     "ResultCol",
                     "dbo",
                     StoreFunctionKind.TableValuedFunction,
-                    isBuiltIn: null);
+                    isBuiltIn: null,
+                    isNiladic: null);
 
             var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionDescriptor);
 
@@ -152,7 +154,8 @@ namespace CodeFirstStoreFunctions
                     "ResultCol",
                     "dbo",
                     StoreFunctionKind.TableValuedFunction,
-                    isBuiltIn: null);
+                    isBuiltIn: null,
+                    isNiladic: null);
 
             var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionDescriptor);
 
@@ -188,7 +191,7 @@ namespace CodeFirstStoreFunctions
                             "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), null, true),
                     },
                     new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
-                    "ResultCol", "dbo", StoreFunctionKind.StoredProcedure, isBuiltIn: null);
+                    "ResultCol", "dbo", StoreFunctionKind.StoredProcedure, isBuiltIn: null, isNiladic: null);
 
             var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionDescriptor);
 
@@ -211,7 +214,7 @@ namespace CodeFirstStoreFunctions
                     new[]
                     {new ParameterDescriptor("p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), null, false)},
                     new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
-                    "ResultCol", "dbo", StoreFunctionKind.TableValuedFunction, isBuiltIn: null);
+                    "ResultCol", "dbo", StoreFunctionKind.TableValuedFunction, isBuiltIn: null, isNiladic: null);
 
             var storeFunction = new StoreFunctionBuilder(model, "docs").Create(functionDescriptor);
 
@@ -232,7 +235,7 @@ namespace CodeFirstStoreFunctions
                             "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), "xml", true),
                     },
                     new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
-                    "ResultCol", "dbo", StoreFunctionKind.StoredProcedure, isBuiltIn: null);
+                    "ResultCol", "dbo", StoreFunctionKind.StoredProcedure, isBuiltIn: null, isNiladic: null);
 
             var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionDescriptor);
 
@@ -255,7 +258,7 @@ namespace CodeFirstStoreFunctions
                             "p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), "json", true),
                     },
                     new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
-                    "ResultCol", "dbo", StoreFunctionKind.StoredProcedure, isBuiltIn: null);
+                    "ResultCol", "dbo", StoreFunctionKind.StoredProcedure, isBuiltIn: null, isNiladic: null);
 
             Assert.Contains("'json'",
                 Assert.Throws<InvalidOperationException>(() =>
@@ -275,7 +278,7 @@ namespace CodeFirstStoreFunctions
                         "f",
                         new[] { new ParameterDescriptor("p1", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), null, false) },
                         new EdmType[] { PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int64) },
-                        "ResultCol", "dbo", StoreFunctionKind.TableValuedFunction, isBuiltIn);
+                        "ResultCol", "dbo", StoreFunctionKind.TableValuedFunction, isBuiltIn, isNiladic: null);
 
                 Assert.Equal(new StoreFunctionBuilder(model, "docs", "ns").Create(functionDescriptor).BuiltInAttribute,
                     isBuiltIn == true);

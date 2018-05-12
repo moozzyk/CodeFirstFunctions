@@ -8,6 +8,7 @@ namespace CodeFirstStoreFunctions
     public class DbFunctionDetailsAttribute : Attribute
     {
         private bool _isBuiltIn;
+        private bool _isNiladic;
 
         /// <summary>
         /// Gets or sets the name of the database schema of the store function.
@@ -23,6 +24,23 @@ namespace CodeFirstStoreFunctions
         /// Gets or sets the types returned by a function mapped to a stored procedure returning multuple resultsets.
         /// </summary>
         public Type[] ResultTypes { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether the function is a niladic function.
+        /// </summary>
+        public bool IsNiladic
+        {
+            get
+            {
+                return _isNiladic;
+            }
+
+            set
+            {
+                _isNiladic = value;
+                IsNiladicPropertySet = true;
+            }
+        }
 
         /// <summary>
         /// Gets or sets whether the function is a built in function.
@@ -42,5 +60,6 @@ namespace CodeFirstStoreFunctions
         }
 
         internal bool IsBuiltInPropertySet { get; private set; }
+        internal bool IsNiladicPropertySet { get; private set; }
     }
 }

@@ -81,7 +81,8 @@ namespace CodeFirstStoreFunctions
                     functionDetailsAttr != null ? functionDetailsAttr.ResultColumnName : null,
                     functionDetailsAttr != null ? functionDetailsAttr.DatabaseSchema : null,
                     storeFunctionKind,
-                    GetBuiltInOption(functionDetailsAttr));
+                    GetBuiltInOption(functionDetailsAttr),
+                    GetNiladicOption(functionDetailsAttr));
             }
 
             return null;
@@ -120,7 +121,7 @@ namespace CodeFirstStoreFunctions
                         throw new InvalidOperationException(
                             string.Format(
                                 "Cannot infer type for parameter '{0}'. All ObjectParameter parameters must be decorated with the ParameterTypeAttribute.",
-                                parameter.Name));    
+                                parameter.Name));
                     }
 
                     parameterType = paramTypeAttribute.Type;
@@ -245,6 +246,13 @@ namespace CodeFirstStoreFunctions
         {
             return (functionDetailsAttribute != null && functionDetailsAttribute.IsBuiltInPropertySet)
                 ? functionDetailsAttribute.IsBuiltIn
+                : (bool?)null;
+        }
+
+        private bool? GetNiladicOption(DbFunctionDetailsAttribute functionDetailsAttribute)
+        {
+            return (functionDetailsAttribute != null && functionDetailsAttribute.IsNiladicPropertySet)
+                ? functionDetailsAttribute.IsNiladic
                 : (bool?)null;
         }
     }
