@@ -55,7 +55,8 @@ namespace CodeFirstStoreFunctions
                     ReturnParameters = CreateFunctionReturnParameters(functionDescriptor),
                     IsComposable = functionDescriptor.StoreFunctionKind != StoreFunctionKind.StoredProcedure,
                     Schema = functionDescriptor.DatabaseSchema ?? _schema,
-                    IsBuiltIn = functionDescriptor.IsBuiltIn
+                    IsBuiltIn = functionDescriptor.IsBuiltIn,
+                    IsNiladic = functionDescriptor.IsNiladic
                 };
 
             return EdmFunction.Create(

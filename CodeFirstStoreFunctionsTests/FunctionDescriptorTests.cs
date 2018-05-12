@@ -21,7 +21,7 @@ namespace CodeFirstStoreFunctions
 
             var functionDescriptor =
                 new FunctionDescriptor("Func", parameters, new EdmType[] { edmType },
-                    "result", "dbo", StoreFunctionKind.TableValuedFunction, isBuiltIn: true);
+                    "result", "dbo", StoreFunctionKind.TableValuedFunction, isBuiltIn: true, isNiladic: true);
 
             Assert.Equal("Func", functionDescriptor.Name);
             Assert.Same(edmType, functionDescriptor.ReturnTypes[0]);
@@ -30,6 +30,7 @@ namespace CodeFirstStoreFunctions
             Assert.Equal("dbo", functionDescriptor.DatabaseSchema);
             Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
             Assert.True(functionDescriptor.IsBuiltIn.Value);
+            Assert.True(functionDescriptor.IsNiladic.Value);
         }
     }
 }
