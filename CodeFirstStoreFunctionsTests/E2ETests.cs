@@ -238,6 +238,13 @@ namespace CodeFirstStoreFunctions
         {
             throw new NotSupportedException();
         }
+
+        [DbFunction("CodeFirstDatabaseSchema", "CURRENT_TIMESTAMP")]
+        [DbFunctionDetails(IsBuiltIn = true, IsNiladic = true)]
+        public static DateTime? CurrentTimestamp()
+        {
+            throw new NotSupportedException();
+        }
     }
 
     #region initializer
@@ -781,6 +788,27 @@ namespace CodeFirstStoreFunctions
             using (var ctx = new MyContext())
             {
                 var q = ctx.Vehicles.Where(v => MyContext.Format(v.ProductionDate, "d", "hu-hu") == "1929. 12. 07.");
+                Assert.Equal(expectedSql, q.ToString());
+                Assert.Equal(1, q.Count());
+            }
+        }
+
+        [Fact]
+        public void Can_invoke_niladic_current_timestamp()
+        {
+            const string expectedSql =
+                @"SELECT 
+    [Limit1].[C1] AS [C1], 
+    [Limit1].[C2] AS [C2]
+    FROM ( SELECT TOP (1) 
+        1 AS [C1], 
+        CURRENT_TIMESTAMP AS [C2]
+        FROM [dbo].[Vehicles] AS [Extent1]
+    )  AS [Limit1]";
+
+            using (var ctx = new MyContext())
+            {
+                var q = ctx.Vehicles.Select(x => new { TimeStamp = MyContext.CurrentTimestamp() }).Take(1);
                 Assert.Equal(expectedSql, q.ToString());
                 Assert.Equal(1, q.Count());
             }
