@@ -1,19 +1,19 @@
-#Store Functions for EntityFramework CodeFirst
+# Store Functions for EntityFramework CodeFirst
 
 Currently Entity Framework Code First approach does not natively support store functions (Table Valued Functions (TVFs) and Stored procedures). However opening the mapping API (and a few other minor changes) made it possible to use TVFs and stored procedures with Code First. This project uses the basic building blocks to build end to end experience allowing using TVFs in Linq queries and invoking stroed procedures without having to drop down to SQL. 
 
-####This project was moved from https://codefirstfunctions.codeplex.com
+#### This project was moved from https://codefirstfunctions.codeplex.com
 
 You may still find some useful information there:
 
  - Old discussion board - https://codefirstfunctions.codeplex.com/discussions
  - Issues - https://codefirstfunctions.codeplex.com/workitem/list/basic
 
-#How to get it
+# How to get it
 
 You can get it from NuGet - just install the [EntityFramework.CodeFirstStoreFunctions NuGet package](http://www.nuget.org/packages/EntityFramework.CodeFirstStoreFunctions)
 
-#How to use it
+# How to use it
 
  - [See what's new in Beta](http://blog.3d-logic.com/2014/08/11/the-beta-version-of-store-functions-for-entityframework-6-1-1-code-first-available)
  - [The 1.0.0 version released](https://blog.3d-logic.com/2014/10/18/the-final-version-of-the-store-functions-for-entityframework-6-1-1-code-first-convention-released)
