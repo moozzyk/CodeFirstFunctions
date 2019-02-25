@@ -34,9 +34,7 @@ namespace CodeFirstStoreFunctions
             if (_schema == null && functionDescriptor.DatabaseSchema == null)
             {
                 throw new InvalidOperationException(
-                    string.Format(
-                        "Database schema is not defined for function '{0}'. Either set a default database schema or use the DbFunctionEx attribute with non-null DatabaseSchema value.",
-                        functionDescriptor.Name));
+                    $"Database schema is not defined for function '{functionDescriptor.Name}'. Either set a default database schema or use the DbFunctionEx attribute with non-null DatabaseSchema value.");
             }
 
             var functionPayload =
@@ -46,10 +44,10 @@ namespace CodeFirstStoreFunctions
                         .Parameters
                         .Select(
                             p => FunctionParameter.Create(
-                                p.Name, 
+                                p.Name,
                                 GetStorePrimitiveType(p),
-                                p.IsOutParam 
-                                    ? ParameterMode.InOut 
+                                p.IsOutParam
+                                    ? ParameterMode.InOut
                                     : ParameterMode.In)).ToArray(),
 
                     ReturnParameters = CreateFunctionReturnParameters(functionDescriptor),
@@ -142,9 +140,9 @@ namespace CodeFirstStoreFunctions
             Debug.Assert(entityType != null, "entityType == null");
 
             var propertyToStoreTypeUsage = new Dictionary<EdmProperty, TypeUsage>();
-			
+
             var types = Tools.GetTypeHierarchy(entityType);
-            var entityTypeMappings = 
+            var entityTypeMappings =
                 _model.ConceptualToStoreMapping.EntitySetMappings
                     .SelectMany(s => s.EntityTypeMappings)
                     .Where(t => types.Contains(t.EntityType))
@@ -153,7 +151,7 @@ namespace CodeFirstStoreFunctions
             foreach (var property in entityType.Properties)
             {
                 foreach (var entityTypeMapping in entityTypeMappings)
-                { 
+                {
                     var propertyMapping =
                         (ScalarPropertyMapping)entityTypeMapping.Fragments.SelectMany(f => f.PropertyMappings)
                         .FirstOrDefault(p => p.Property == property);
@@ -193,8 +191,8 @@ namespace CodeFirstStoreFunctions
 
                 if (type == null)
                 {
-                    throw new InvalidOperationException(string.Format(
-                        "No store EdmType with the name '{0}' could be found.", parameterDescriptor.StoreType));
+                    throw new InvalidOperationException(
+                        $"No store EdmType with the name '{parameterDescriptor.StoreType}' could be found.");
                 }
 
                 return type;

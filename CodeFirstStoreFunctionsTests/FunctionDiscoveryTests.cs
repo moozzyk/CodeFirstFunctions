@@ -439,6 +439,7 @@ namespace CodeFirstStoreFunctions
                             .ToArray()).Message;
 
                 Assert.Contains("DbFunctionDetailsAttribute.ResultTypes", message);
+                Assert.Contains("TVFWithResultTypes", message);
             }
 
             [Fact]
@@ -621,7 +622,8 @@ namespace CodeFirstStoreFunctions
                             .FindFunctions().ToList()).Message;
 
                 Assert.Contains("'DbFunction'", message);
-                Assert.Contains("'CodeFirstDatabaseSchema'", message);                
+                Assert.Contains("'CodeFirstDatabaseSchema'", message);
+                Assert.Contains("'UdfNotInCodeFirstDatabaseSchema'", message);
             }
 
             [Fact]
@@ -641,7 +643,8 @@ namespace CodeFirstStoreFunctions
                             .FindFunctions().ToList()).Message;
 
                 Assert.Contains("'Model.TestEnumType'", message);
-                Assert.Contains("'param'", message);                
+                Assert.Contains("'param'", message);
+                Assert.Contains("'UdfWithNonPrimitiveParam'", message);
             }
 
             [Fact]
@@ -688,6 +691,7 @@ namespace CodeFirstStoreFunctions
                 Assert.Contains("Input/Output", message);
                 Assert.Contains("'param'", message);
                 Assert.Contains("'ObjectParameter'", message);
+                Assert.Contains("'StoredProcWithRefParam'", message);
             }
 
             [Fact]
@@ -758,6 +762,7 @@ namespace CodeFirstStoreFunctions
                 Assert.Contains("ParameterTypeAttribute", message);
                 Assert.Contains("ObjectParameter", message);
                 Assert.Contains("'param'", message);
+                Assert.Contains("'StoredProcWithObjectParamaterAndNoParameterTypeAttribute'", message);
             }
 
             [Fact]

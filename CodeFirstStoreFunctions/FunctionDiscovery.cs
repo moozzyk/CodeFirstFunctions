@@ -66,7 +66,8 @@ namespace CodeFirstStoreFunctions
                 if (storeFunctionKind == StoreFunctionKind.ScalarUserDefinedFunction &&
                     (functionAttribute == null || functionAttribute.NamespaceName != "CodeFirstDatabaseSchema"))
                 {
-                    throw new InvalidOperationException("Scalar store functions must be decorated with the 'DbFunction' attribute with the 'CodeFirstDatabaseSchema' namespace.");
+                    throw new InvalidOperationException(
+                        $"Scalar store functions must be decorated with the 'DbFunction' attribute with the 'CodeFirstDatabaseSchema' namespace. Function: '{method.Name}'");
                 }
 
                 var unwrapperReturnType =
@@ -102,9 +103,7 @@ namespace CodeFirstStoreFunctions
                 if (parameter.IsOut || parameter.ParameterType.IsByRef)
                 {
                     throw new InvalidOperationException(
-                        string.Format(
-                            "The parameter '{0}' is an out or ref parameter. To map Input/Output database parameters use the 'ObjectParameter' as the parameter type.",
-                            parameter.Name));
+                        $"The parameter '{parameter.Name}' of function '{method.Name}' is an out or ref parameter. To map Input/Output database parameters use the 'ObjectParameter' as the parameter type.");
                 }
 
                 var paramTypeAttribute =
@@ -119,9 +118,7 @@ namespace CodeFirstStoreFunctions
                     if (paramTypeAttribute == null)
                     {
                         throw new InvalidOperationException(
-                            string.Format(
-                                "Cannot infer type for parameter '{0}'. All ObjectParameter parameters must be decorated with the ParameterTypeAttribute.",
-                                parameter.Name));
+                            $"Cannot infer type for parameter '{parameter.Name}' of funtion '{method.Name}'. All ObjectParameter parameters must be decorated with the ParameterTypeAttribute.");
                     }
 
                     parameterType = paramTypeAttribute.Type;
@@ -136,20 +133,15 @@ namespace CodeFirstStoreFunctions
 
                 if (parameterEdmType == null)
                 {
-                    throw
-                        new InvalidOperationException(
-                            string.Format(
-                                "The type '{0}' of the parameter '{1}' of function '{2}' is invalid. Parameters can only be of a type that can be converted to an Edm scalar type",
-                                unwrappedParameterType.FullName, parameter.Name, method.Name));
+                    throw new InvalidOperationException(
+                        $"The type '{unwrappedParameterType.FullName}' of the parameter '{parameter.Name}' of function '{method.Name}' is invalid. Parameters can only be of a type that can be converted to an Edm scalar type");
                 }
 
                 if (storeFunctionKind == StoreFunctionKind.ScalarUserDefinedFunction &&
                     parameterEdmType.BuiltInTypeKind != BuiltInTypeKind.PrimitiveType)
                 {
                     throw new InvalidOperationException(
-                        string.Format(
-                            "The parameter '{0}' is of the '{1}' type which is not an Edm primitive type. Types of parameters of store scalar functions must be Edm primitive types.",
-                            parameter.Name, parameterEdmType));
+                        $"The parameter '{parameter.Name}' of function '{method.Name}' is of the '{parameterEdmType}' type which is not an Edm primitive type. Types of parameters of store scalar functions must be Edm primitive types.");
                 }
 
                 yield return new ParameterDescriptor(parameter.Name, parameterEdmType,
@@ -162,12 +154,12 @@ namespace CodeFirstStoreFunctions
         {
             Debug.Assert(methodReturnType != null, "methodReturnType is null");
 
-            var resultTypes = functionDetailsAttribute != null ? functionDetailsAttribute.ResultTypes : null;
+            var resultTypes = functionDetailsAttribute?.ResultTypes;
 
             if (storeFunctionKind != StoreFunctionKind.StoredProcedure && resultTypes != null)
             {
                 throw new InvalidOperationException(
-                    "The DbFunctionDetailsAttribute.ResultTypes property should be used only for stored procedures returning multiple resultsets and must be null for composable function imports.");
+                    $"The DbFunctionDetailsAttribute.ResultTypes property should be used only for stored procedures returning multiple resultsets and must be null for composable function imports. Function: '{methodName}'");
             }
 
             resultTypes = resultTypes == null || resultTypes.Length == 0 ? null : resultTypes;
@@ -175,9 +167,7 @@ namespace CodeFirstStoreFunctions
             if (resultTypes != null && resultTypes[0] != methodReturnType)
             {
                 throw new InvalidOperationException(
-                    string.Format(
-                        "The ObjectResult<T> item type returned by the method '{0}' is '{1}' but the first type specified in the `DbFunctionDetailsAttribute.ResultTypes` is '{2}'. The ObjectResult<T> item type must match the first type from the `DbFunctionDetailsAttribute.ResultTypes` array.",
-                        methodName, methodReturnType.FullName, resultTypes[0].FullName));
+                    $"The ObjectResult<T> item type returned by the function '{methodName}' is '{methodReturnType.FullName}' but the first type specified in the `DbFunctionDetailsAttribute.ResultTypes` is '{resultTypes[0].FullName}'. The ObjectResult<T> item type must match the first type from the `DbFunctionDetailsAttribute.ResultTypes` array.");
             }
 
             var edmResultTypes = (resultTypes ?? new[] {methodReturnType}).Select(GetReturnEdmItemType).ToArray();
@@ -186,9 +176,7 @@ namespace CodeFirstStoreFunctions
                 edmResultTypes[0].BuiltInTypeKind != BuiltInTypeKind.PrimitiveType)
             {
                 throw new InvalidOperationException(
-                    string.Format(
-                        "The type '{0}' returned by the method '{1}' cannot be mapped to an Edm primitive type. Scalar user defined functions have to return types that can be mapped to Edm primitive types.",
-                        methodReturnType.FullName, methodName));
+                    $"The type '{methodReturnType.FullName}' returned by the function '{methodName}' cannot be mapped to an Edm primitive type. Scalar user defined functions have to return types that can be mapped to Edm primitive types.");
             }
 
             return edmResultTypes;
@@ -219,7 +207,7 @@ namespace CodeFirstStoreFunctions
                 }
             }
 
-            throw new InvalidOperationException(string.Format("No EdmType found for type '{0}'.", type.FullName));
+            throw new InvalidOperationException($"No EdmType found for type '{type.FullName}'.");
         }
 
         private static EdmType GetEdmPrimitiveTypeForClrType(Type clrType)

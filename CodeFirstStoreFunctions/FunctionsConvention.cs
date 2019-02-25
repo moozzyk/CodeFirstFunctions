@@ -113,9 +113,7 @@ namespace CodeFirstStoreFunctions
                     if (matchingEntitySets.Length == 0)
                     {
                         throw new InvalidOperationException(
-                            string.Format(
-                                "The model does not contain EntitySet for the '{0}' entity type.",
-                                returnType.FullName));
+                            $"The model does not contain EntitySet for the '{returnType.FullName}' entity type.");
                     }
 
                     Debug.Assert(matchingEntitySets.Length == 1, "Invalid model (MEST)");
