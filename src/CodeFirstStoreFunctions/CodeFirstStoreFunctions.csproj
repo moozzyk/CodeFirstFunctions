@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>CodeFirstStoreFunctions</RootNamespace>
+    <TargetFrameworks>net45;net40;netstandard2.1</TargetFrameworks>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <IsPackable>true</IsPackable>
+    <AssemblyOriginatorKeyFile>$(KeyFile)</AssemblyOriginatorKeyFile>
+    <SignAssembly Condition="'$(AssemblyOriginatorKeyFile)' != ''">true</SignAssembly>
+    <DefineConstants Condition="'$(AssemblyOriginatorKeyFile)' == ''">$(DefineConstants);INTERNALSVISIBLETOENABLED</DefineConstants>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <PackageId>EntityFramework.CodeFirstStoreFunctions</PackageId>
+    <Version>1.2.0</Version>
+    <Authors>Pawel "moozzyk" Kadluczka</Authors>
+    <PackageLicenseFile>License.txt</PackageLicenseFile>
+    <Title>Support for store functions for Entity Framework 6.3.0+ Code First.</Title>
+    <Description>Support for store functions (table valued functions, scalar user defined functions and stored procedures) for Entity Framework 6.3.0+ Code First.</Description>
+    <PackageSummary>Support for store functions (table valued functions, scalar user defined functions and stored procedures) for Entity Framework 6.3.0+ Code First.</PackageSummary>
+    <PackageProjectUrl>https://github.com/moozzyk/CodeFirstFunctions</PackageProjectUrl>
+    <PackageLanguage>en-US</PackageLanguage>
+    <PackageTags>EF6 EF6.1 EF Entity Framework Entity-Framework EntityFramework 6.1 Store Functions TVFs TVF table valued functions stored procedure sprocs stored proc scalar functions UDF UDFs user defined functions Code First CodeFirst moozzyk blog.3d-logic.com</PackageTags>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\..\License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EntityFramework" Version="6.3.0" />
+  </ItemGroup>
+</Project>
