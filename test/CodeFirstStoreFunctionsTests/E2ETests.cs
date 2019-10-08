@@ -502,7 +502,7 @@ namespace CodeFirstStoreFunctions
                 const string expectedSql = @"SELECT 
     [Extent1].[TerminalCount] AS [TerminalCount]
     FROM [dbo].[GetUniqueTerminalCount]() AS [Extent1]
-    WHERE  CAST( [Extent1].[TerminalCount] AS int) > 1";
+    WHERE [Extent1].[TerminalCount] > 1";
 
                 Assert.Equal(expectedSql, ((ObjectQuery)query).ToTraceString());
 
@@ -528,7 +528,7 @@ namespace CodeFirstStoreFunctions
     [Extent1].[TerminalCount] AS [TerminalCount], 
     [Extent1].[Type] AS [Type]
     FROM [dbo].[GetAirports_ComplexType](@CountryCode) AS [Extent1]
-    WHERE  CAST( [Extent1].[TerminalCount] AS int) > 0";
+    WHERE [Extent1].[TerminalCount] > 0";
 
                 Assert.Equal(expectedSql, sql);
 
@@ -561,7 +561,7 @@ namespace CodeFirstStoreFunctions
     [Extent1].[TerminalCount] AS [TerminalCount], 
     [Extent1].[Type] AS [Type]
     FROM [dbo].[GetAirports](@CountryCode) AS [Extent1]
-    WHERE  CAST( [Extent1].[TerminalCount] AS int) > 0";
+    WHERE [Extent1].[TerminalCount] > 0";
 
                 Assert.Equal(expectedSql, sql);
 
@@ -585,7 +585,7 @@ namespace CodeFirstStoreFunctions
                 const string expectedSql = @"SELECT 
     [Extent1].[Type] AS [Type]
     FROM [dbo].[GetAirportType](@AirportType) AS [Extent1]
-    WHERE  NOT ((-1 =  CAST( [Extent1].[Type] AS int)) AND ([Extent1].[Type] IS NOT NULL))";
+    WHERE  NOT ((-1 = [Extent1].[Type]) AND ([Extent1].[Type] IS NOT NULL))";
 
                 Assert.Equal(expectedSql, sql);
 
