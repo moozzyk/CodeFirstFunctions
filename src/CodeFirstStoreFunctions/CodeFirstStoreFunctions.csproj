@@ -23,6 +23,10 @@
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
+  <Target Name="ValidatePack" BeforeTargets="BeforeBuild">
+    <Warning Text="Signing debug build." Condition="'$(AssemblyOriginatorKeyFile)' != '' AND '$(Configuration)' != 'Release'" />
+  </Target>
+
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)..\..\License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
   </ItemGroup>
