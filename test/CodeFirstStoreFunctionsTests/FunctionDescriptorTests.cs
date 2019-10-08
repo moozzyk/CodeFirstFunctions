@@ -28,7 +28,7 @@ namespace CodeFirstStoreFunctions
             Assert.Equal(parameters, functionDescriptor.Parameters);
             Assert.Equal("result", functionDescriptor.ResultColumnName);
             Assert.Equal("dbo", functionDescriptor.DatabaseSchema);
-            Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
+            Assert.Equal(StoreFunctionKind.TableValuedFunction, functionDescriptor.StoreFunctionKind);
             Assert.True(functionDescriptor.IsBuiltIn.Value);
             Assert.True(functionDescriptor.IsNiladic.Value);
         }

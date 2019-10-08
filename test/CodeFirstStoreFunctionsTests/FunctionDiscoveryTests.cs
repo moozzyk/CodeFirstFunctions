@@ -236,7 +236,7 @@ namespace CodeFirstStoreFunctions
                 Assert.Equal("PrimitiveFunctionImportComposable", functionDescriptor.Name);
                 Assert.Equal(2, functionDescriptor.Parameters.Count());
                 Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
+                Assert.Equal(StoreFunctionKind.TableValuedFunction, functionDescriptor.StoreFunctionKind);
             }
 
             [Fact]
@@ -256,9 +256,9 @@ namespace CodeFirstStoreFunctions
 
                 Assert.NotNull(functionDescriptor);
                 Assert.Equal("PrivateFunction", functionDescriptor.Name);
-                Assert.Equal(1, functionDescriptor.Parameters.Count());
+                Assert.Single(functionDescriptor.Parameters);
                 Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
+                Assert.Equal(StoreFunctionKind.TableValuedFunction, functionDescriptor.StoreFunctionKind);
             }
 
             [Fact]
@@ -281,9 +281,9 @@ namespace CodeFirstStoreFunctions
 
                 Assert.NotNull(functionDescriptor);
                 Assert.Equal("FunctionImportReturningComplexTypesComposable", functionDescriptor.Name);
-                Assert.Equal(0, functionDescriptor.Parameters.Count());
+                Assert.Empty(functionDescriptor.Parameters);
                 Assert.Equal("Model.TestComplexType", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
+                Assert.Equal(StoreFunctionKind.TableValuedFunction, functionDescriptor.StoreFunctionKind);
             }
 
             [Fact]
@@ -306,9 +306,9 @@ namespace CodeFirstStoreFunctions
 
                 Assert.NotNull(functionDescriptor);
                 Assert.Equal("PrimitiveFunctionImportWithNullablePrimitiveTypes", functionDescriptor.Name);
-                Assert.Equal(1, functionDescriptor.Parameters.Count());
+                Assert.Single(functionDescriptor.Parameters);
                 Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
+                Assert.Equal(StoreFunctionKind.TableValuedFunction, functionDescriptor.StoreFunctionKind);
             }
 
             [Fact]
@@ -333,7 +333,7 @@ namespace CodeFirstStoreFunctions
                 Assert.Equal("EnumFunctionImportComposable", functionDescriptor.Name);
                 Assert.Equal(2, functionDescriptor.Parameters.Count());
                 Assert.Equal("Model.TestEnumType", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
+                Assert.Equal(StoreFunctionKind.TableValuedFunction, functionDescriptor.StoreFunctionKind);
             }
 
             [Fact]
@@ -356,9 +356,9 @@ namespace CodeFirstStoreFunctions
 
                 Assert.NotNull(functionDescriptor);
                 Assert.Equal("EnumFunctionImportWithNullableEnums", functionDescriptor.Name);
-                Assert.Equal(1, functionDescriptor.Parameters.Count());
+                Assert.Single(functionDescriptor.Parameters);
                 Assert.Equal("Model.TestEnumType", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
+                Assert.Equal(StoreFunctionKind.TableValuedFunction, functionDescriptor.StoreFunctionKind);
             }
 
             [Fact]
@@ -381,9 +381,9 @@ namespace CodeFirstStoreFunctions
 
                 Assert.NotNull(functionDescriptor);
                 Assert.Equal("StoredProcToComplexTypes", functionDescriptor.Name);
-                Assert.Equal(0, functionDescriptor.Parameters.Count());
+                Assert.Empty(functionDescriptor.Parameters);
                 Assert.Equal("Model.TestComplexType", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.StoredProcedure);
+                Assert.Equal(StoreFunctionKind.StoredProcedure, functionDescriptor.StoreFunctionKind);
             }
 
             [Fact]
@@ -496,11 +496,11 @@ namespace CodeFirstStoreFunctions
 
                 Assert.NotNull(functionDescriptor);
                 Assert.Equal("ExtensionMethod", functionDescriptor.Name);
-                Assert.Equal(1, functionDescriptor.Parameters.Count());
+                Assert.Single(functionDescriptor.Parameters);
                 Assert.Equal("param", functionDescriptor.Parameters.First().Name);
                 Assert.Equal("Edm.String", functionDescriptor.Parameters.First().EdmType.FullName);
                 Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
+                Assert.Equal(StoreFunctionKind.TableValuedFunction, functionDescriptor.StoreFunctionKind);
             }
 
             [Fact]
@@ -521,11 +521,11 @@ namespace CodeFirstStoreFunctions
 
                 Assert.NotNull(functionDescriptor);
                 Assert.Equal("StaticMethod", functionDescriptor.Name);
-                Assert.Equal(1, functionDescriptor.Parameters.Count());
+                Assert.Single(functionDescriptor.Parameters);
                 Assert.Equal("param", functionDescriptor.Parameters.First().Name);
                 Assert.Equal("Edm.String", functionDescriptor.Parameters.First().EdmType.FullName);
                 Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.TableValuedFunction);
+                Assert.Equal(StoreFunctionKind.TableValuedFunction, functionDescriptor.StoreFunctionKind);
             }
 
             [Fact]
@@ -541,11 +541,11 @@ namespace CodeFirstStoreFunctions
                         .FindFunctions().SingleOrDefault();
 
                 Assert.NotNull(functionDescriptor);
-                Assert.Equal(1, functionDescriptor.Parameters.Count());
+                Assert.Single(functionDescriptor.Parameters);
                 Assert.Equal("param", functionDescriptor.Parameters.First().Name);
                 Assert.Equal("Edm.String", functionDescriptor.Parameters.First().EdmType.FullName);
                 Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.Equal(functionDescriptor.StoreFunctionKind, StoreFunctionKind.ScalarUserDefinedFunction);
+                Assert.Equal(StoreFunctionKind.ScalarUserDefinedFunction, functionDescriptor.StoreFunctionKind);
             }
 
             [Fact]
@@ -778,11 +778,11 @@ namespace CodeFirstStoreFunctions
                         .FindFunctions().SingleOrDefault();
 
                 Assert.NotNull(functionDescriptor);
-                Assert.Equal(1, functionDescriptor.Parameters.Count());
+                Assert.Single(functionDescriptor.Parameters);
                 Assert.Equal("param", functionDescriptor.Parameters.First().Name);
                 Assert.Equal("Edm.String", functionDescriptor.Parameters.First().EdmType.FullName);
                 Assert.Equal("Edm.Int32", functionDescriptor.ReturnTypes[0].FullName);
-                Assert.Equal(functionDescriptor.IsBuiltIn, true);
+                Assert.True(functionDescriptor.IsBuiltIn);
             }
 
             private static DbModel CreateModel()

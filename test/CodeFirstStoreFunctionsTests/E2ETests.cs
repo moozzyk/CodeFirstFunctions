@@ -534,7 +534,7 @@ namespace CodeFirstStoreFunctions
 
                 var result = query.ToList();
 
-                Assert.Equal(1, result.Count());
+                Assert.Single(result);
                 Assert.Equal("WRO", result[0].IATACode);
                 Assert.Equal("WRO", result[0].CityCode);
                 Assert.Equal("PL", result[0].CountryCode);
@@ -625,7 +625,7 @@ namespace CodeFirstStoreFunctions
             {
                 var aircraft = ctx.GetAircraft().ToList();
 
-                Assert.Equal(1, aircraft.Count);
+                Assert.Single(aircraft);
                 Assert.Equal("AT7", aircraft[0].Code);
             }
         }
@@ -647,7 +647,7 @@ namespace CodeFirstStoreFunctions
             {
                 var result = ctx.GetAirports_ComplexTypeSP("PL").ToList();
 
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 Assert.Equal("WRO", result[0].IATACode);
             }
         }
@@ -659,7 +659,7 @@ namespace CodeFirstStoreFunctions
             {
                 var result = ctx.GetAirportsSP("PL").ToList();
 
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 Assert.Equal("WRO", result[0].IATACode);
             }
         }
@@ -683,7 +683,7 @@ namespace CodeFirstStoreFunctions
             {
                 var aircraft = ctx.GetAircraftSP().ToList();
 
-                Assert.Equal(1, aircraft.Count);
+                Assert.Single(aircraft);
                 Assert.Equal("AT7", aircraft[0].Code);
             }
         }
@@ -715,7 +715,7 @@ namespace CodeFirstStoreFunctions
                 var airportTypeParameter = new ObjectParameter("AirportType", typeof (AirportType?));
                 var results = ctx.GetAirportTypesWithOutputParameter(airportTypeParameter);
 
-                Assert.Equal(1, results.ToList().Count);
+                Assert.Single(results.ToList());
                 Assert.Equal(AirportType.International, airportTypeParameter.Value);
             }
         }

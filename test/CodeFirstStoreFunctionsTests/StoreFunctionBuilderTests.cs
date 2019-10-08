@@ -38,11 +38,11 @@ namespace CodeFirstStoreFunctions
             var collectionItemType =
                 (RowType)((CollectionType)storeFunction.ReturnParameter.TypeUsage.EdmType).TypeUsage.EdmType;
 
-            Assert.Equal(1, collectionItemType.Properties.Count);
+            Assert.Single(collectionItemType.Properties);
             Assert.Equal("ResultCol", collectionItemType.Properties[0].Name);
             Assert.Equal("bigint", collectionItemType.Properties[0].TypeUsage.EdmType.Name);
 
-            Assert.Equal(1, storeFunction.Parameters.Count);
+            Assert.Single(storeFunction.Parameters);
             Assert.Equal("p1", storeFunction.Parameters[0].Name);
             Assert.Equal("nvarchar(max)", storeFunction.Parameters[0].TypeName);
             Assert.Equal(ParameterMode.In, storeFunction.Parameters[0].Mode);
@@ -84,7 +84,7 @@ namespace CodeFirstStoreFunctions
 
             Assert.Null(storeFunction.ReturnParameter);
 
-            Assert.Equal(1, storeFunction.Parameters.Count);
+            Assert.Single(storeFunction.Parameters);
             Assert.Equal("p1", storeFunction.Parameters[0].Name);
             Assert.Equal("nvarchar(max)", storeFunction.Parameters[0].TypeName);
             Assert.Equal(ParameterMode.In, storeFunction.Parameters[0].Mode);
@@ -128,7 +128,7 @@ namespace CodeFirstStoreFunctions
                 BuiltInTypeKind.CollectionType,
                 storeFunction.ReturnParameter.TypeUsage.EdmType.BuiltInTypeKind);
 
-            Assert.Equal(1, storeFunction.Parameters.Count);
+            Assert.Single(storeFunction.Parameters);
             Assert.Equal("p1", storeFunction.Parameters[0].Name);
             Assert.Equal("nvarchar(max)", storeFunction.Parameters[0].TypeName);
             Assert.Equal(ParameterMode.In, storeFunction.Parameters[0].Mode);
@@ -166,11 +166,11 @@ namespace CodeFirstStoreFunctions
             var collectionItemType =
                 (RowType)((CollectionType)storeFunction.ReturnParameter.TypeUsage.EdmType).TypeUsage.EdmType;
 
-            Assert.Equal(1, collectionItemType.Properties.Count);
+            Assert.Single(collectionItemType.Properties);
             Assert.Equal("ResultCol", collectionItemType.Properties[0].Name);
             Assert.Equal("int", collectionItemType.Properties[0].TypeUsage.EdmType.Name);
 
-            Assert.Equal(1, storeFunction.Parameters.Count);
+            Assert.Single(storeFunction.Parameters);
             Assert.Equal("p1", storeFunction.Parameters[0].Name);
             Assert.Equal("int", storeFunction.Parameters[0].TypeName);
             Assert.Equal(ParameterMode.In, storeFunction.Parameters[0].Mode);
@@ -195,7 +195,7 @@ namespace CodeFirstStoreFunctions
 
             var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionDescriptor);
 
-            Assert.Equal(1, storeFunction.Parameters.Count);
+            Assert.Single(storeFunction.Parameters);
             Assert.Equal("p1", storeFunction.Parameters[0].Name);
             Assert.Equal("nvarchar(max)", storeFunction.Parameters[0].TypeName);
             Assert.Equal(ParameterMode.InOut, storeFunction.Parameters[0].Mode);
@@ -239,7 +239,7 @@ namespace CodeFirstStoreFunctions
 
             var storeFunction = new StoreFunctionBuilder(model, "docs", "ns").Create(functionDescriptor);
 
-            Assert.Equal(1, storeFunction.Parameters.Count);
+            Assert.Single(storeFunction.Parameters);
             Assert.Equal("p1", storeFunction.Parameters[0].Name);
             Assert.Equal("xml", storeFunction.Parameters[0].TypeName);
         }
